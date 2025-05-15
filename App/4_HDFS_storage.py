@@ -19,20 +19,20 @@ def upload_to_hdfs(local_path, hdfs_path):
         # Đưa file lên HDFS
         subprocess.run(["hadoop", "fs", "-put", "-f", local_path, hdfs_path], check=True)
 
-        print(f"Successfully uploaded {local_path} to HDFS at {hdfs_path}")
+        print(f"Đã tải lên thành công {local_path} vào HDFS tại {hdfs_path}")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Failed to upload file to HDFS: {e}")
+        print(f"Lỗi khi tải tập tin lên HDFS: {e}")
         return False
 
 def read_from_hdfs(spark, hdfs_path):
     """Đọc file CSV từ HDFS vào DataFrame Spark."""
     try:
         df = spark.read.option("header", True).csv(hdfs_path)
-        print(f"Successfully read {df.count()} records from {hdfs_path}")
+        print(f"Đã đọc thành công {df.count()} bản ghi từ {hdfs_path}")
         return df
     except Exception as e:
-        print(f"Failed to read file from HDFS: {e}")
+        print(f"Lỗi khi đọc tập tin từ HDFS: {e}")
         return None
 
 def write_to_hdfs(df, hdfs_path, format="csv"):
@@ -42,10 +42,10 @@ def write_to_hdfs(df, hdfs_path, format="csv"):
             df.coalesce(1).write.option("header", True).mode("overwrite").csv(hdfs_path)
         elif format == "parquet":
             df.write.mode("overwrite").parquet(hdfs_path)
-        print(f"Successfully wrote DataFrame to HDFS at {hdfs_path}")
+        print(f"Đã ghi thành công DataFrame vào HDFS tại {hdfs_path}")
         return True
     except Exception as e:
-        print(f"Failed to write DataFrame to HDFS: {e}")
+        print(f"Lỗi khi ghi DataFrame vào HDFS: {e}")
         return False
 
 def list_hdfs_files(hdfs_dir):
@@ -53,21 +53,21 @@ def list_hdfs_files(hdfs_dir):
     try:
         result = subprocess.run(["hadoop", "fs", "-ls", hdfs_dir],
                                capture_output=True, text=True, check=True)
-        print(f"Files in {hdfs_dir}:")
+        print(f"Các tập tin trong {hdfs_dir}:")
         print(result.stdout)
         return result.stdout
     except subprocess.CalledProcessError as e:
-        print(f"Failed to list HDFS directory: {e}")
+        print(f"Lỗi khi liệt kê thư mục HDFS: {e}")
         return None
 
 def delete_from_hdfs(hdfs_path):
     """Xóa một file hoặc thư mục từ HDFS."""
     try:
         subprocess.run(["hadoop", "fs", "-rm", "-r", hdfs_path], check=True)
-        print(f"Successfully deleted {hdfs_path} from HDFS")
+        print(f"Đã xóa thành công {hdfs_path} từ HDFS")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Failed to delete from HDFS: {e}")
+        print(f"Lỗi khi xóa tập tin từ HDFS: {e}")
         return False
 
 if __name__ == "__main__":
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     if df is not None:
         # Hiển thị dữ liệu mẫu
-        print("Sample data from HDFS:")
+        print("Dữ liệu mẫu từ HDFS:")
         df.show(5)
 
         # Ghi lại vào HDFS dưới định dạng Parquet (hiệu quả hơn cho Spark)

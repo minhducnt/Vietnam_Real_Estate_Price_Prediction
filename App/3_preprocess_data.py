@@ -15,21 +15,21 @@ def initialize_spark_session(app_name="RealEstatePreprocessing"):
 def load_data(spark, file_path):
     """Đọc dữ liệu từ file CSV vào DataFrame Spark."""
     df = spark.read.option("header", True).option("encoding", "utf-8").csv(file_path)
-    print(f"Loaded {df.count()} records from {file_path}")
-    print("Original schema:")
+    print(f"Đã tải {df.count()} bản ghi từ {file_path}")
+    print("Cấu trúc dữ liệu gốc:")
     df.printSchema()
     return df
 
 def check_missing_values(df):
     """Kiểm tra và in số lượng giá trị bị thiếu trong mỗi cột."""
-    print("Missing values per column:")
+    print("Số lượng giá trị thiếu trong mỗi cột:")
     df.select([sum(col(c).isNull().cast("int")).alias(c) for c in df.columns]).show()
     return df
 
 def drop_unnecessary_columns(df, columns_to_drop):
     """Loại bỏ các cột không cần thiết khỏi DataFrame."""
     df_cleaned = df.drop(*columns_to_drop)
-    print(f"Dropped columns: {columns_to_drop}")
+    print(f"Đã loại bỏ các cột: {columns_to_drop}")
     return df_cleaned
 
 def handle_null_values(df):
@@ -50,7 +50,7 @@ def handle_null_values(df):
             when(col(column).isNull(), 'Không xác định').otherwise(col(column))
         )
 
-    print("Handled null values")
+    print("Đã xử lý các giá trị null")
     return df
 
 def process_location(df):
@@ -67,7 +67,7 @@ def process_location(df):
     # Loại bỏ cột vị trí gốc
     df = df.drop('location')
 
-    print("Processed location column into district and city_province")
+    print("Đã xử lý cột vị trí thành quận/huyện và tỉnh/thành phố")
     return df
 
 def process_price(df):
@@ -93,12 +93,11 @@ def process_price(df):
     # Loại bỏ các dòng có giá trị null
     df = df.filter(col("price").isNotNull())
 
-    print("Processed price column")
+    print("Đã xử lý cột giá")
     return df
 
 def process_area(df):
     """Xử lý cột diện tích để chuyển sang định dạng số."""
-    # Xử lý cột diện tích - loại bỏ 'm2' và chuyển sang float
     df = df.withColumn('area',
         regexp_replace(col('area'), r'\s*m2$', '').cast('float')
     )
@@ -106,27 +105,25 @@ def process_area(df):
     # Loại bỏ các dòng có diện tích null hoặc bằng 0
     df = df.filter((col("area").isNotNull()) & (col("area") > 0))
 
-    print("Processed area column")
+    print("Đã xử lý cột diện tích")
     return df
 
 def process_floor_num(df):
     """Xử lý cột số tầng để chuyển sang định dạng số."""
-    # Loại bỏ 'tầng' và chuyển sang số nguyên
     df = df.withColumn('floor_num',
         regexp_replace(col('floor_num').cast('string'), r'\s*tầng$', '').cast('int')
     )
 
-    print("Processed floor_num column")
+    print("Đã xử lý cột số tầng")
     return df
 
 def process_bedroom_num(df):
     """Xử lý cột số phòng ngủ để chuyển sang định dạng số."""
-    # Loại bỏ 'phòng' và chuyển sang số nguyên
     df = df.withColumn('bedroom_num',
         regexp_replace(col('bedroom_num').cast('string'), r'\s*phòng$', '').cast('int')
     )
 
-    print("Processed bedroom_num column")
+    print("Đã xử lý cột số phòng ngủ")
     return df
 
 def process_street(df):
@@ -159,7 +156,7 @@ def process_street(df):
     # Drop temporary columns
     df = df.drop("street", "street_clean", "split")
 
-    print("Processed street column into street_width")
+    print("Đã xử lý cột đường thành độ rộng đường")
     return df
 
 def calculate_price_per_m2(df):
@@ -174,7 +171,7 @@ def calculate_price_per_m2(df):
         (col("price_per_m2") >= 2e6) & (col("price_per_m2") <= 1e8)
     )
 
-    print("Calculated price_per_m2")
+    print("Đã tính toán giá trên mét vuông")
     return df
 
 def convert_data_types(df):
@@ -188,7 +185,7 @@ def convert_data_types(df):
            .withColumn("price", col("price").cast("float")) \
            .withColumn("price_per_m2", col("price_per_m2").cast("float"))
 
-    print("Converted data types")
+    print("Đã chuyển đổi kiểu dữ liệu")
     return df
 
 def rename_columns(df):
@@ -196,7 +193,7 @@ def rename_columns(df):
     df = df.withColumnRenamed("area", "area_m2") \
            .withColumnRenamed("street_width", "street_width_m")
 
-    print("Renamed columns")
+    print("Đã đổi tên các cột")
     return df
 
 def save_processed_data(df, output_path):
@@ -208,9 +205,9 @@ def save_processed_data(df, output_path):
     csv_files = [f for f in os.listdir(output_path) if f.endswith('.csv')]
     if csv_files:
         csv_file = csv_files[0]
-        print(f"Data saved to {output_path}/{csv_file}")
+        print(f"Dữ liệu đã được lưu vào {output_path}/{csv_file}")
     else:
-        print(f"Data saved to {output_path}")
+        print(f"Dữ liệu đã được lưu vào {output_path}")
 
     return output_path
 
@@ -245,7 +242,7 @@ def preprocess_data(input_file, output_path):
         # Save processed data
         output_path = save_processed_data(df, output_path)
 
-        print(f"Preprocessing completed. Final record count: {df.count()}")
+        print(f"Hoàn tất tiền xử lý dữ liệu. Số lượng bản ghi cuối cùng: {df.count()}")
 
         return output_path
 

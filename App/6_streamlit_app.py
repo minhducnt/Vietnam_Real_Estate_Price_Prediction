@@ -13,8 +13,8 @@ from pyspark.sql.types import DoubleType, StringType
 
 # Cấu hình trang
 st.set_page_config(
-    page_title="Vietnam Real Estate Price Prediction",
-    page_icon="🏢",
+    page_title="Dự Đoán Giá Bất Động Sản Việt Nam",
+    page_icon="🏒",
     layout="wide",
     initial_sidebar_state="expanded"
 )

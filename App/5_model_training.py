@@ -21,12 +21,11 @@ def initialize_spark_session(app_name="RealEstateModelTraining"):
 def load_processed_data(spark, data_path):
     """Đọc dữ liệu đã xử lý từ CSV hoặc HDFS."""
     df = spark.read.option("header", True).csv(data_path)
-    print(f"Loaded {df.count()} records for model training")
+    print(f"Đã tải {df.count()} bản ghi cho việc huấn luyện mô hình")
     return df
 
 def prepare_data_for_modeling(df):
     """Chuẩn bị dữ liệu cho việc mô hình hóa bằng cách xử lý các giá trị bị thiếu và áp dụng các phép biến đổi."""
-    # Xử lý các giá trị số bị thiếu trong các cột quan trọng
     numeric_cols = ["area_m2", "floor_num", "toilet_num", "livingroom_num", "bedroom_num", "street_width_m"]
 
     # Tạo các cột đánh dấu dữ liệu bị thiếu và điền giá trị trung vị
@@ -44,7 +43,7 @@ def prepare_data_for_modeling(df):
     # Áp dụng phép biến đổi logarit cho giá (để giảm độ lệch)
     df = df.withColumn("price_log", log1p(col("price_per_m2")))
 
-    print("Data prepared for modeling")
+    print("Dữ liệu đã được chuẩn bị cho việc mô hình hóa")
     return df
 
 def create_model_pipeline(categorical_cols, numeric_cols, binary_cols):
@@ -94,8 +93,8 @@ def create_model_pipeline(categorical_cols, numeric_cols, binary_cols):
 def split_data(df, train_ratio=0.8, seed=42):
     """Chia dữ liệu thành tập huấn luyện và tập kiểm thử."""
     train_df, test_df = df.randomSplit([train_ratio, 1 - train_ratio], seed=seed)
-    print(f"Training set: {train_df.count()} records")
-    print(f"Test set: {test_df.count()} records")
+    print(f"Tập huấn luyện: {train_df.count()} bản ghi")
+    print(f"Tập kiểm tra: {test_df.count()} bản ghi")
     return train_df, test_df
 
 def train_models(train_df, test_df, feature_col="scaled_features", label_col="price_log"):
@@ -140,7 +139,7 @@ def train_models(train_df, test_df, feature_col="scaled_features", label_col="pr
         "Gradient Boosted Trees": (gbt_model, gbt_preds)
     }
 
-    print("Models trained successfully")
+    print("Các mô hình đã được huấn luyện thành công")
     return models
 
 def evaluate_model(pred_df, actual_col="price_per_m2", pred_col="prediction"):
@@ -175,11 +174,11 @@ def save_best_model(model, pipeline_model, output_dir):
     model_path = os.path.join(output_dir, "regression_model")
     model.save(model_path)
 
-    print(f"Model saved to {output_dir}")
+    print(f"Mô hình đã được lưu vào {output_dir}")
 
     # Create a zip file for easier distribution
     shutil.make_archive(output_dir, 'zip', output_dir)
-    print(f"Model archived as {output_dir}.zip")
+    print(f"Mô hình đã được lưu trữ dạng nén tại {output_dir}.zip")
 
     return output_dir
 
@@ -207,11 +206,11 @@ def plot_feature_importance(model, feature_names, output_file=None):
 
         if output_file:
             plt.savefig(output_file)
-            print(f"Feature importance plot saved to {output_file}")
+            print(f"Biểu đồ mức độ quan trọng của đặc trưng đã được lưu vào {output_file}")
         else:
             plt.show()
     else:
-        print("This model doesn't support feature importance")
+        print("Mô hình này không hỗ trợ tính năng hiển thị mức độ quan trọng của đặc trưng")
 
 def train_real_estate_model(data_path, output_dir="model"):
     """Main function to train the real estate price prediction model."""
@@ -252,7 +251,7 @@ def train_real_estate_model(data_path, output_dir="model"):
             results[name] = evaluate_model(preds)
 
         # Print evaluation results
-        print("Model Evaluation Results:")
+        print("Kết quả đánh giá mô hình:")
         for name, metrics in results.items():
             print(f"{name}: RMSE={metrics['RMSE']:.2f}, MSE={metrics['MSE']:.2f}, MAE={metrics['MAE']:.2f}, R²={metrics['R2']:.4f}")
 
@@ -260,7 +259,7 @@ def train_real_estate_model(data_path, output_dir="model"):
         best_model_name = max(results, key=lambda x: results[x]['R2'])
         best_model, _ = models[best_model_name]
 
-        print(f"Best model: {best_model_name}")
+        print(f"Mô hình tốt nhất: {best_model_name}")
 
         # Save the best model
         save_best_model(best_model, pipeline_model, output_dir)

@@ -1,0 +1,26 @@
+# File requirements.txt cho dự án Dự đoán giá bất động sản Việt Nam
+# Tạo bởi Cascade AI ngày 15/05/2025
+
+# Web scraping và tự động hóa
+selenium>=4.12.0
+webdriver-manager>=4.0.0
+
+# Xử lý dữ liệu
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Xử lý dữ liệu lớn
+pyspark>=3.4.0
+
+# Trực quan hóa dữ liệu
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.13.0
+folium>=0.14.0
+
+# Ứng dụng web
+streamlit>=1.26.0
+
+# Triển khai ứng dụng
+pyngrok>=6.0.0
+ngrok>=0.8.0

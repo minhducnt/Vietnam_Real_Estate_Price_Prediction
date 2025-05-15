@@ -130,11 +130,22 @@ def fetch_real_estate_listings(base_url, num_pages=5):
     return property_data
 
 def save_to_csv(data, filename="raw_bat_dong_san.csv"):
-    """Lưu dữ liệu đã thu thập vào file CSV."""
+    """Lưu dữ liệu đã thu thập vào file CSV trong thư mục Data."""
+    import os
+
+    # Tạo thư mục Data nếu nó chưa tồn tại
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Data")
+    os.makedirs(data_dir, exist_ok=True)
+
+    # Đường dẫn đầy đủ đến file
+    file_path = os.path.join(data_dir, filename)
+
+    # Lưu dữ liệu vào file CSV
     df = pd.DataFrame(data)
-    df.to_csv(filename, index=False, encoding="utf-8-sig")
-    print(f"Dữ liệu đã được lưu vào {filename}")
-    return filename
+    df.to_csv(file_path, index=False, encoding="utf-8-sig")
+
+    print(f"Dữ liệu đã được lưu vào {file_path}")
+    return file_path
 
 if __name__ == "__main__":
     BASE_URL = "https://nhadat.cafeland.vn/nha-dat-ban"

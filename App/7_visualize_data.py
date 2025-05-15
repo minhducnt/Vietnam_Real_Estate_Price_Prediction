@@ -22,7 +22,7 @@ def load_processed_data(spark, data_path):
     df = spark.read.option("header", True).csv(data_path)
     # Convert to Pandas for visualization
     pandas_df = df.toPandas()
-    print(f"Loaded {len(pandas_df)} records for visualization")
+    print(f"Đã tải {len(pandas_df)} bản ghi cho việc trực quan hóa")
     return pandas_df
 
 def create_output_dir(output_dir="visualizations"):
@@ -36,15 +36,15 @@ def plot_price_distribution(df, output_dir):
 
     # Biểu đồ phân phối giá
     sns.histplot(df["price_per_m2"], kde=True, ax=ax[0])
-    ax[0].set_title("Price Distribution")
-    ax[0].set_xlabel("Price per m² (VND)")
-    ax[0].set_ylabel("Count")
+    ax[0].set_title("Phân Phối Giá")
+    ax[0].set_xlabel("Giá trên m\u00b2 (VND)")
+    ax[0].set_ylabel("Số lượng")
 
     # Biểu đồ phân phối giá đã chuyển đổi logarit
     sns.histplot(np.log1p(df["price_per_m2"]), kde=True, ax=ax[1])
-    ax[1].set_title("Log-transformed Price Distribution")
-    ax[1].set_xlabel("Log(Price per m²)")
-    ax[1].set_ylabel("Count")
+    ax[1].set_title("Phân Phối Giá Đã Chuyển Đổi Logarit")
+    ax[1].set_xlabel("Log(Giá trên m\u00b2)")
+    ax[1].set_ylabel("Số lượng")
 
     plt.tight_layout()
     plt.savefig(f"{output_dir}/price_distribution.png", dpi=300)
@@ -55,24 +55,24 @@ def plot_price_distribution(df, output_dir):
     city_data = df.groupby("city_province")["price_per_m2"].median().sort_values(ascending=False).head(10).reset_index()
 
     sns.boxplot(x="city_province", y="price_per_m2", data=df[df["city_province"].isin(city_data["city_province"])])
-    plt.title("Price Distribution by Top 10 Cities/Provinces")
-    plt.xlabel("City/Province")
-    plt.ylabel("Price per m² (VND)")
+    plt.title("Phân Phối Giá Theo 10 Tỉnh/Thành Phố Hàng Đầu")
+    plt.xlabel("Tỉnh/Thành Phố")
+    plt.ylabel("Giá trên m\u00b2 (VND)")
     plt.xticks(rotation=45, ha="right")
     plt.tight_layout()
     plt.savefig(f"{output_dir}/price_by_city_boxplot.png", dpi=300)
     plt.close()
 
-    print("Price distribution plots created")
+    print("Đã tạo các biểu đồ phân phối giá")
 
 def plot_feature_relationships(df, output_dir):
     """Vẽ biểu đồ mối quan hệ giữa các đặc trưng chính và giá."""
     # Biểu đồ Diện tích - Giá
     plt.figure(figsize=(10, 6))
     sns.scatterplot(x="area_m2", y="price_per_m2", data=df, alpha=0.5)
-    plt.title("Relationship between Area and Price")
-    plt.xlabel("Area (m²)")
-    plt.ylabel("Price per m² (VND)")
+    plt.title("Mối Quan Hệ Giữa Diện Tích và Giá")
+    plt.xlabel("Diện tích (m\u00b2)")
+    plt.ylabel("Giá trên m\u00b2 (VND)")
     plt.tight_layout()
     plt.savefig(f"{output_dir}/area_vs_price.png", dpi=300)
     plt.close()
@@ -83,7 +83,7 @@ def plot_feature_relationships(df, output_dir):
 
     plt.figure(figsize=(10, 8))
     sns.heatmap(correlation, annot=True, cmap="coolwarm", fmt=".2f")
-    plt.title("Correlation Matrix of Numeric Features")
+    plt.title("Ma Trận Tương Quan Giữa Các Đặc Trưng Số")
     plt.tight_layout()
     plt.savefig(f"{output_dir}/correlation_matrix.png", dpi=300)
     plt.close()
@@ -100,7 +100,7 @@ def plot_feature_relationships(df, output_dir):
         plt.savefig(f"{output_dir}/price_by_{feature}.png", dpi=300)
         plt.close()
 
-    print("Feature relationship plots created")
+    print("Đã tạo các biểu đồ mối quan hệ giữa các đặc trưng")
 
 def plot_categorical_comparisons(df, output_dir):
     """Vẽ biểu đồ so sánh giá theo các đặc trưng phân loại."""
@@ -121,7 +121,7 @@ def plot_categorical_comparisons(df, output_dir):
         plt.savefig(f"{output_dir}/price_by_{feature}.png", dpi=300)
         plt.close()
 
-    print("Categorical comparison plots created")
+    print("Đã tạo các biểu đồ so sánh theo phân loại")
 
 def plot_time_trends(df, output_dir):
     """Vẽ biểu đồ xu hướng theo thời gian nếu có dữ liệu thời gian."""
@@ -178,11 +178,11 @@ def create_interactive_map(df, output_dir):
 
         if len(city_data) > 0:
             avg_price = city_data["price_per_m2"].mean()
-            avg_price_text = f"{avg_price:,.0f} VND/m²"
+            avg_price_text = f"{avg_price:,.0f} VND/m\u00b2"
 
             folium.Marker(
                 location=coords,
-                popup=f"<strong>{city}</strong><br>Average Price: {avg_price_text}<br>Properties: {len(city_data)}",
+                popup=f"<strong>{city}</strong><br>Giá Trung Bình: {avg_price_text}<br>Số BĐS: {len(city_data)}",
                 tooltip=f"{city}: {avg_price_text}",
                 icon=folium.Icon(color="blue", icon="home")
             ).add_to(marker_cluster)
@@ -190,11 +190,11 @@ def create_interactive_map(df, output_dir):
     # Save the map as HTML
     vietnam_map.save(f"{output_dir}/property_map.html")
 
-    print("Interactive map created")
+    print("Đã tạo bản đồ tương tác")
 
 def create_plotly_visualizations(df, output_dir):
-    """Create interactive Plotly visualizations."""
-    # Price distribution by city
+    """Tạo các biểu đồ tương tác bằng Plotly."""
+    # Phân phối giá theo thành phố
     city_prices = df.groupby("city_province")["price_per_m2"].mean().sort_values(ascending=False).reset_index()
     city_prices = city_prices.head(10)
 
