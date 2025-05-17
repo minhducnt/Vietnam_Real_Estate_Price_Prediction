@@ -1,3 +1,4 @@
+# MARK: - Import Libraries
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -8,16 +9,14 @@ import plotly.express as px
 import plotly.graph_objects as go
 from pyspark.sql import SparkSession
 from pyspark.ml.feature import VectorAssembler, StandardScaler
-from pyspark.ml.regression import GBTRegressor, GBTRegressionModel
-from pyspark.ml import Pipeline, PipelineModel
+from pyspark.ml.regression import GBTRegressor
+from pyspark.ml import Pipeline
 from pyspark.ml.evaluation import RegressionEvaluator
 import os
-import pickle
-import random
 import time
-import subprocess
 from pyngrok import ngrok
 
+# MARK: - Global Variables
 # Khởi tạo biến toàn cục để lưu tên cột
 FEATURE_COLUMNS = {
     'area': 'area (m2)',
@@ -35,11 +34,114 @@ st.set_page_config(
 # CSS tùy chỉnh để tạo giao diện hiện đại
 st.markdown('''
 <style>
+    /* Import Literata font with Vietnamese support */
+    @import url('https://fonts.googleapis.com/css2?family=Literata:wght@200;300;400;500;600;700;800;900&display=swap&subset=latin,latin-ext,vietnamese');
+
+    /* Main content area styling */
     .main {
         background-color: #f8f9fa;
+        margin-left: 250px;
+        padding: 1rem 2rem;
     }
+
+    /* Global font styling */
     .stApp {
-        font-family: 'Roboto', sans-serif;
+        font-family: 'Literata', serif;
+    }
+
+    /* Text elements styling */
+    h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, button, input, optgroup, select, textarea {
+        font-family: 'Literata', serif !important;
+    }
+
+    /* Custom dark sidebar styling */
+    [data-testid="stSidebar"] {
+        background-color: #1a202c;
+        padding-top: 0;
+        min-width: 280px !important;
+        max-width: 280px !important;
+    }
+
+    [data-testid="stSidebar"] .css-6qob1r {
+        background-color: #1a202c;
+    }
+
+    /* Sidebar header styling */
+    .sidebar-header {
+        background: linear-gradient(to right, #2c5282, #1a365d);
+        padding: 1.5rem 1rem;
+        text-align: center;
+        margin-bottom: 1.6rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-header img {
+        max-width: 40px;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Sidebar navigation styling */
+    .nav-link {
+        display: block;
+        padding: 0.75rem 1rem;
+        margin: 0.25rem 0.75rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: white !important;
+        transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255,255,255,0.1);
+    }
+
+    .nav-link.active {
+        background-color: #4c9aff;
+        color: white !important;
+        font-weight: 600;
+    }
+
+    /* Sidebar text color */
+    [data-testid="stSidebar"] .css-eczf16,
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] h4,
+    [data-testid="stSidebar"] h5,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] div,
+    [data-testid="stSidebar"] span,
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] .stSelectbox label {
+        color: white !important;
+    }
+
+    /* Custom sidebar buttons */
+    [data-testid="stSidebar"] button {
+        background-color: #2d3748 !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    [data-testid="stSidebar"] button:hover {
+        background-color: #4A5568 !important;
+    }
+
+    /* Custom selectbox in sidebar */
+    [data-testid="stSidebar"] .stSelectbox {
+        margin-bottom: 0.5rem;
+    }
+
+    [data-testid="stSidebar"] .stSelectbox > div > div {
+        background-color: #2d3748 !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    /* Metrics styling */
+    [data-testid="stMetricValue"] {
+        color: #4c9aff !important;
+        font-weight: bold !important;
     }
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px;
@@ -76,6 +178,33 @@ st.markdown('''
     div[data-testid="stMetricLabel"] {
         font-size: 1rem;
     }
+
+    /* Sidebar metrics styling */
+    .sidebar-metric {
+        background-color: rgba(255,255,255,0.05);
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-section {
+        padding: 0.5rem 1rem 1rem 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .sidebar-section-title {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+        color: rgba(255,255,255,0.8);
+        display: flex;
+        align-items: center;
+    }
+
+    .sidebar-section-title svg {
+        margin-right: 0.5rem;
+    }
     .card {
         background-color: white;
         border-radius: 10px;
@@ -83,10 +212,22 @@ st.markdown('''
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         margin-bottom: 20px;
     }
+
+    /* Left-aligned title styling */
+    .left-aligned-title {
+        text-align: left !important;
+        display: flex !important;
+        align-items: center !important;
+        font-size: 2rem !important;
+        font-weight: 700 !important;
+        margin-bottom: 1rem !important;
+    }
 </style>
 ''', unsafe_allow_html=True)
 
-# Khởi tạo phiên Spark
+# Không cần hiển thị logo riêng vì sẽ được thêm vào sidebar
+
+# MARK: - Khởi tạo phiên Spark
 @st.cache_resource
 def get_spark_session():
     """Khởi tạo và trả về một phiên Spark."""
@@ -98,11 +239,17 @@ def get_spark_session():
         .getOrCreate()
     )
 
-# Đọc dữ liệu
+# MARK: - Đọc dữ liệu
 @st.cache_data
-def load_data(file_path="../Data/Final Data Cleaned.csv"):
+def load_data(file_path=None):
     """Đọc dữ liệu bất động sản từ file CSV."""
     try:
+        # Xác định đường dẫn tuyệt đối đến file dữ liệu
+        if file_path is None:
+            # Đường dẫn tương đối từ thư mục gốc của dự án
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            file_path = os.path.join(base_dir, 'Data', 'Final Data Cleaned.csv')
+
         # Đọc dữ liệu bằng pandas
         df = pd.read_csv(file_path)
         return df
@@ -110,6 +257,7 @@ def load_data(file_path="../Data/Final Data Cleaned.csv"):
         st.error(f"Lỗi khi đọc dữ liệu: {e}")
         return pd.DataFrame()
 
+# MARK: - Xử lý dữ liệu
 @st.cache_data
 def preprocess_data(data):
     """Tiền xử lý dữ liệu cho phân tích và mô hình hóa."""
@@ -122,13 +270,17 @@ def preprocess_data(data):
         'street (m)': 'street_width_m'
     }
 
-    # Kiểm tra và đổi tên cột nếu cần
+    # Đảm bảo chúng ta có cả các cột cũ và mới
     for old_name, new_name in column_mapping.items():
-        if old_name in df.columns and new_name not in df.columns:
+        if old_name in df.columns:
+            # Nếu cột cũ tồn tại, tạo cột mới dựa trên nó
             df[new_name] = df[old_name]
+        elif new_name not in df.columns and old_name not in df.columns:
+            # Nếu cả hai cột đều không tồn tại, hiển thị lỗi
+            st.error(f"Không tìm thấy cột {old_name} hoặc {new_name} trong dữ liệu")
 
     # Xử lý giá trị thiếu
-    numeric_cols = ["area_m2", "bedroom_num", "floor_num", "toilet_num", "livingroom_num", "street_width_m"]
+    numeric_cols = ["area (m2)", "bedroom_num", "floor_num", "toilet_num", "livingroom_num", "street (m)"]
     for col in numeric_cols:
         if col in df:
             # Thay thế -1 (giá trị thiếu) bằng giá trị trung vị
@@ -140,141 +292,154 @@ def preprocess_data(data):
 
     return df
 
-# Chuyển đổi dữ liệu pandas sang spark
+# MARK: - Chuyển đổi dữ liệu pandas sang spark
 @st.cache_resource
 def convert_to_spark(data):
     """Chuyển đổi DataFrame pandas sang DataFrame Spark."""
     spark = get_spark_session()
     return spark.createDataFrame(data)
 
-# Huấn luyện mô hình
+# MARK: - Huấn luyện mô hình
 @st.cache_resource
 def train_model(data):
     """Huấn luyện mô hình dự đoán giá bất động sản."""
-    # Lưu trữ tên cột gốc để sử dụng cho dự đoán sau này
-    global FEATURE_COLUMNS
+    # Khởi tạo SparkSession
+    spark = get_spark_session()
 
-    # Kiểm tra các cột có sẵn trong dữ liệu
-    data_columns = data.columns
+    # For debugging - commented out
+    # print(f"Các cột trong dữ liệu gốc trước khi chuyển đổi: {data.columns.tolist()}")
 
-    # Xác định tên cột đúng cho các đặc trưng số
-    area_column = 'area_m2' if 'area_m2' in data_columns else 'area (m2)'
-    street_column = 'street_width_m' if 'street_width_m' in data_columns else 'street (m)'
+    # Đảm bảo dữ liệu có tất cả các cột cần thiết (cả tên cũ và mới)
+    if 'area (m2)' in data.columns and 'area_m2' not in data.columns:
+        data['area_m2'] = data['area (m2)'].copy()
+    if 'street (m)' in data.columns and 'street_width_m' not in data.columns:
+        data['street_width_m'] = data['street (m)'].copy()
 
-    # Lưu cấu trúc cột để sử dụng cho dự đoán
-    FEATURE_COLUMNS = {
-        'area': area_column,
-        'street': street_column
-    }
+    # Chuyển đổi dữ liệu pandas sang Spark
+    data_spark = convert_to_spark(data)
 
-    # Chuyển đổi dữ liệu sang Spark DataFrame
-    spark_df = convert_to_spark(data)
+    # Định nghĩa các cột để sử dụng trong mô hình
+    # Sử dụng tên cột cố định dựa trên biến FEATURE_COLUMNS
+    area_column = FEATURE_COLUMNS['area']  # 'area (m2)'
+    street_column = FEATURE_COLUMNS['street']  # 'street (m)'
 
-    # Chia dữ liệu thành tập huấn luyện và kiểm tra
-    train_df, test_df = spark_df.randomSplit([0.8, 0.2], seed=42)
-
-    # Chuẩn bị các đặc trưng, sử dụng tên cột thực tế
+    # Đặc trưng số
     numeric_features = [area_column, "bedroom_num", "floor_num", "toilet_num", "livingroom_num", street_column]
 
-    # Tạo vector đặc trưng
-    assembler = VectorAssembler(
-        inputCols=numeric_features,
-        outputCol="features"
-    )
+    # Chỉ sử dụng các cột tồn tại trong dữ liệu
+    numeric_features = [col for col in numeric_features if col in data_spark.columns]
 
-    # Chuẩn hóa đặc trưng
-    scaler = StandardScaler(
-        inputCol="features",
-        outputCol="scaled_features",
-        withStd=True,
-        withMean=True
-    )
+    # Đặc trưng phân loại
+    categorical_features = ["category", "direction", "liability", "district", "city_province"]
 
-    # Mô hình GBT Regressor
-    gbt = GBTRegressor(
-        featuresCol="scaled_features",
-        labelCol="price_log",
-        maxDepth=5,
-        maxIter=100
-    )
+    # Loại trừ các đặc trưng không tồn tại trong dữ liệu
+    categorical_features = [col for col in categorical_features if col in data.columns]
+
+    # Tạo onehot encoding cho các biến phân loại
+    from pyspark.ml.feature import StringIndexer, OneHotEncoder
+
+    indexers = [StringIndexer(inputCol=col, outputCol=col+"_index", handleInvalid="keep")
+                for col in categorical_features]
+
+    encoders = [OneHotEncoder(inputCol=col+"_index", outputCol=col+"_encoded")
+                for col in categorical_features]
+
+    # Gộp tất cả các đặc trưng đã xử lý vào một vector
+    assembler_inputs = numeric_features + [col+"_encoded" for col in categorical_features]
+
+    assembler = VectorAssembler(inputCols=assembler_inputs, outputCol="features", handleInvalid="skip")
+
+    # Tạo chuẩn hóa dữ liệu
+    scaler = StandardScaler(inputCol="features", outputCol="scaled_features")
+
+    # Khởi tạo mô hình GBT
+    gbt = GBTRegressor(featuresCol="scaled_features", labelCol="price_per_m2", maxIter=10)
 
     # Tạo pipeline
-    pipeline = Pipeline(stages=[assembler, scaler, gbt])
+    pipeline = Pipeline(stages=indexers + encoders + [assembler, scaler, gbt])
 
-    # Huấn luyện mô hình
-    model = pipeline.fit(train_df)
+    try:
+        # Chia dữ liệu thành tập huấn luyện và kiểm tra
+        train_data, test_data = data_spark.randomSplit([0.8, 0.2], seed=42)
 
-    # Đánh giá mô hình
-    predictions = model.transform(test_df)
+        # Huấn luyện mô hình
+        model = pipeline.fit(train_data)
 
-    evaluator = RegressionEvaluator(
-        labelCol="price_log",
-        predictionCol="prediction",
-        metricName="r2"
-    )
+        # Đánh giá mô hình
+        predictions = model.transform(test_data)
 
-    r2 = evaluator.evaluate(predictions)
+        # Tính toán các chỉ số đánh giá
+        evaluator = RegressionEvaluator(labelCol="price_per_m2", predictionCol="prediction", metricName="rmse")
+        rmse = evaluator.evaluate(predictions)
 
-    evaluator.setMetricName("rmse")
-    rmse = evaluator.evaluate(predictions)
+        evaluator.setMetricName("r2")
+        r2 = evaluator.evaluate(predictions)
 
-    return model, r2, rmse
+        # Hiển thị kết quả đánh giá
+        st.session_state.model_metrics = {
+            "rmse": rmse,
+            "r2": r2
+        }
 
-# Hàm dự đoán giá
+        return model
+    except Exception as e:
+        st.error(f"Lỗi khi huấn luyện mô hình: {e}")
+        raise e
+
+# MARK: - Dự đoán giá
 def predict_price(model, input_data):
     """Dự đoán giá dựa trên đầu vào của người dùng."""
     try:
-        global FEATURE_COLUMNS
+        # Chuyển dữ liệu đầu vào thành DataFrame
+        data_copy = {k: [v] for k, v in input_data.items()}
 
-        # Tạo bản sao của dữ liệu đầu vào
-        data_copy = input_data.copy()
+        # Tạo pandas DataFrame
+        input_df = pd.DataFrame(data_copy)
 
-        # Điều chỉnh tên cột để phù hợp với mô hình
-        if hasattr(FEATURE_COLUMNS, 'get'):
-            # Đảm bảo area_m2 và street_width_m được đổi tên phù hợp
-            if 'area_m2' in data_copy and FEATURE_COLUMNS.get('area') != 'area_m2':
-                data_copy[FEATURE_COLUMNS['area']] = data_copy['area_m2']
-                del data_copy['area_m2']
+        # Sao chép dữ liệu để không ảnh hưởng đến dữ liệu gốc
+        data_copy = input_df.copy()
 
-            if 'street_width_m' in data_copy and FEATURE_COLUMNS.get('street') != 'street_width_m':
-                data_copy[FEATURE_COLUMNS['street']] = data_copy['street_width_m']
-                del data_copy['street_width_m']
-        else:
-            # Nếu FEATURE_COLUMNS chưa được khởi tạo, sử dụng giá trị mặc định
-            # Áp dụng mapping cũ cho trường hợp này
-            column_mapping = {
-                'area_m2': 'area (m2)',
-                'street_width_m': 'street (m)'
-            }
-            for new_name, old_name in column_mapping.items():
-                if new_name in data_copy and old_name not in data_copy:
-                    data_copy[old_name] = data_copy[new_name]
+        # Xử lý các giá trị không tồn tại
+        for col in data_copy.columns:
+            if col in ["bedroom_num", "floor_num", "toilet_num", "livingroom_num"]:
+                data_copy[col] = data_copy[col].fillna(-1).astype(int)
 
+        # Đảm bảo chúng ta có các cột đúng tên chính xác
+        # Đảm bảo không sử dụng area_m2 mà sử dụng 'area (m2)'
+        if 'area_m2' in data_copy.columns and 'area (m2)' not in data_copy.columns:
+            data_copy['area (m2)'] = data_copy['area_m2'].copy()
+            del data_copy['area_m2']
+
+        # Đảm bảo không sử dụng street_width_m mà sử dụng 'street (m)'
+        if 'street_width_m' in data_copy.columns and 'street (m)' not in data_copy.columns:
+            data_copy['street (m)'] = data_copy['street_width_m'].copy()
+            del data_copy['street_width_m']
+
+        # Chuyển đổi dữ liệu sang Spark DataFrame
         spark = get_spark_session()
+        spark_df = convert_to_spark(data_copy)
 
-        # In ra dữ liệu đầu vào để gỡ lỗi
-        print("Dữ liệu đầu vào dự đoán:", data_copy)
+        # Dự đoán giá
+        try:
+            predictions = model.transform(spark_df)
 
-        # Tạo DataFrame từ đầu vào
-        input_df = spark.createDataFrame([data_copy])
+            # Lấy kết quả dự đoán
+            prediction_value = predictions.select("prediction").collect()[0][0]
 
-        # Thực hiện dự đoán
-        result = model.transform(input_df)
-
-        # Lấy kết quả
-        prediction_log = result.select("prediction").collect()[0][0]
-
-        # Chuyển từ giá trị logarithm sang giá trị thật
-        predicted_price = np.expm1(prediction_log)
-
-        return predicted_price
+            return prediction_value
+        except Exception as transform_error:
+            st.error(f"Lỗi khi chuyển đổi dữ liệu: {transform_error}")
+            # Hiển thị thông tin bổ sung về mô hình để debug
+            st.write("Thông tin về mô hình:")
+            st.write(str(model)[:500] + "..." if len(str(model)) > 500 else str(model))
+            return None
     except Exception as e:
-        # Ghi lại lỗi để gỡ rối
-        print(f"Lỗi khi dự đoán: {e}")
-        st.error(f"Có lỗi xảy ra khi dự đoán: {e}")
-        return 0
+        st.error(f"Lỗi khi dự đoán: {e}")
+        import traceback
+        st.error(traceback.format_exc())
+        return None
 
-# Tạo hàm để chạy ngrok
+# MARK: - Kết nối Ngrok
 def run_ngrok():
     """Kết nối ứng dụng Streamlit với ngrok để tạo URL public."""
     # Thiết lập ngrok - Người dùng cần nhập authtoken
@@ -302,6 +467,7 @@ def run_ngrok():
     else:
         st.sidebar.info("ℹ️ Nhập Ngrok Authtoken để tạo URL public. Bạn có thể lấy token miễn phí tại [ngrok.com](https://ngrok.com).")
 
+# MARK: - Main Application Flow
 # Tải dữ liệu
 data = load_data()
 
@@ -311,37 +477,326 @@ if not data.empty:
 
     # Huấn luyện mô hình
     with st.spinner("Đang huấn luyện mô hình dự đoán giá..."):
-        model, r2_score, rmse = train_model(processed_data)
+        model = train_model(processed_data)
+        # Lấy các metric từ session state sau khi huấn luyện mô hình
+        if 'model_metrics' in st.session_state:
+            r2_score = st.session_state.model_metrics['r2']
+            rmse = st.session_state.model_metrics['rmse']
+        else:
+            r2_score = 0.0
+            rmse = 0.0
 
     # Nếu không có dữ liệu, hiển thị thông báo
 else:
     st.error("Không thể tải dữ liệu. Vui lòng kiểm tra đường dẫn đến file dữ liệu.")
     st.stop()
 
-# Tạo sidebar
-st.sidebar.title("🏠 Vietnam Real Estate")
-app_mode = st.sidebar.selectbox("Chọn chế độ", ["Dự đoán giá", "Phân tích dữ liệu", "Về dự án"])
+# MARK: - Sidebar
+# Tạo container để ẩn padding mặc định của sidebar
+st.sidebar.markdown("""
+<style>
+    [data-testid="stSidebarUserContent"] > div:first-child {padding-top: 0rem;}
+    [data-testid="stVerticalBlock"] {gap: 0.5rem;}
+</style>
+""", unsafe_allow_html=True)
 
-# Kết nối Ngrok nếu người dùng chọn
-if st.sidebar.checkbox("Bật kết nối Ngrok", False):
-    run_ngrok()
+# Header của sidebar với logo
+st.sidebar.markdown("""
+<div class="sidebar-header">
+    <img src="https://img.icons8.com/fluency/96/000000/home.png" alt="Logo">
+    <h2 style="color: white; margin: 0; font-size: 1.3rem;">BĐS Việt Nam</h2>
+    <p style="color: rgba(255,255,255,0.7); margin: 0; font-size: 0.8rem;">AI Dự Đoán Giá</p>
+</div>
+""", unsafe_allow_html=True)
 
-# Hiển thị thông tin trên sidebar
-st.sidebar.subheader("Thông tin mô hình")
-st.sidebar.metric("Độ chính xác (R²)", f"{r2_score:.4f}")
-st.sidebar.metric("RMSE", f"{rmse:.4f}")
-st.sidebar.metric("Số lượng bất động sản", f"{len(data):,}")
+# Set session state for app_mode if it doesn't exist
+if 'app_mode' not in st.session_state:
+    st.session_state['app_mode'] = "Dự đoán giá"
+
+# Phương thức để cập nhật app_mode
+def set_app_mode(mode):
+    st.session_state['app_mode'] = mode
+
+# CSS cho buttons
+st.markdown("""
+<style>
+    /* Navigation button styling */
+    button[kind="secondary"], button[kind="primary"] {
+        width: 100% !important;
+        text-align: left !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding: 0.6rem 0.5rem !important;
+        margin: 0.25rem 0 !important;
+        border-radius: 0.5rem !important;
+    }
+
+    button[kind="secondary"] p, button[kind="primary"] p {
+        width: 100% !important;
+        text-align: left !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .sidebar-nav-button {
+        width: 100%;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        padding: 0.6rem 0.5rem !important;
+        margin: 0.25rem 0 !important;
+        border-radius: 0.5rem !important;
+        color: white !important;
+        background-color: rgba(44, 52, 75, 0.5) !important;
+        border: none !important;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.95rem !important;
+        line-height: 1.2;
+    }
+
+    .sidebar-nav-button:hover {
+        background-color: rgba(76, 154, 255, 0.7) !important;
+    }
+
+    .sidebar-nav-button-active {
+        background-color: #4c9aff !important;
+        color: white !important;
+        font-weight: 500 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Lấy mode hiện tại
+app_mode = st.session_state['app_mode']
+
+# Menu options với icons và khoảng cách
+modes = ["Dự đoán giá", "Phân tích dữ liệu", "Về dự án"]
+modes_icons = ["🏠 ", "📊 ", "ℹ️ "]
+
+# Tạo CSS để điều chỉnh style cho nút button trong Streamlit
+st.markdown("""
+<style>
+    /* Cải thiện style cho button */
+    button[kind="primary"], button[kind="secondary"] {
+        padding-left: 16px !important;
+        padding-right: 6px !important;
+    }
+
+    /* Cải thiện cách hiển thị icon trong button */
+    button[kind="primary"] p:first-child, button[kind="secondary"] p:first-child {
+        display: inline-block;
+        margin-right: 8px !important;
+        font-size: 1.2rem !important;
+    }
+
+    /* Tăng kích thước chữ cho nút */
+    button[kind="primary"] p:last-child, button[kind="secondary"] p:last-child {
+        font-size: 0.95rem !important;
+        font-weight: 500;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Container cho menu
+menu_container = st.sidebar.container()
+
+# Tạo các button
+for i, mode in enumerate(modes):
+    active_class = "sidebar-nav-button-active" if mode == app_mode else ""
+    # Sử dụng nhiều khoảng trắng hơn để tạo khoảng cách
+    button_label = f"{modes_icons[i]}        {mode}"
+
+    if menu_container.button(button_label, key=f"nav_{i}",
+                           use_container_width=True,
+                           on_click=set_app_mode,
+                           args=(mode,),
+                           type="primary" if mode == app_mode else "secondary"):
+        pass
+
+    # Tạo style cho nút
+    if i < len(modes) - 1:
+        # Định nghĩa CSS chính xác hơn để nhắm đến các thành phần trong nút
+        st.markdown("""
+        <style>
+        div[data-testid="stVerticalBlock"] > div:nth-child(CHILD_INDEX) button {
+            width: 100% !important;
+            text-align: left !important;
+            padding: 0.6rem 0.5rem !important;
+            margin: 0.25rem 0 !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.95rem !important;
+        }
+
+        /* Nhắm trực tiếp vào thành phần chứa văn bản trong nút */
+        div[data-testid="stVerticalBlock"] > div:nth-child(CHILD_INDEX) button > div:first-child {
+            display: flex !important;
+            justify-content: flex-start !important;
+            width: 100% !important;
+        }
+
+        /* Nhắm trực tiếp vào thành phần chứa văn bản */
+        div[data-testid="stVerticalBlock"] > div:nth-child(CHILD_INDEX) button > div:first-child > p {
+            text-align: left !important;
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        </style>
+        """.replace("CHILD_INDEX", str(i + 1 + 6)), unsafe_allow_html=True)  # +6 vì có các đối tượng khác trước menu
+
+# Thêm CSS để nâng cao giao diện các metrics
+st.markdown("""
+<style>
+    /* Style cho card metrics mới */
+    .enhanced-metric-card {
+        background: linear-gradient(145deg, rgba(44,82,130,0.5), rgba(26,54,93,0.7));
+        border-radius: 10px;
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+        border: 1px solid rgba(76,154,255,0.3);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        height: 110px; /* Đặt chiều cao cố định cho card */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .enhanced-metric-card:hover {
+        border: 1px solid rgba(76,154,255,0.6);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    }
+
+    .metric-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 0.4rem;
+    }
+
+    .metric-icon {
+        margin-right: 0.5rem;
+        background-color: rgba(76,154,255,0.2);
+        border-radius: 50%;
+        padding: 0.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .metric-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.9);
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #4c9aff;
+        text-align: center;
+        margin-top: 0.2rem;
+    }
+
+    .metric-description {
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.6);
+        text-align: center;
+        margin-top: 0.2rem;
+    }
+
+    .model-stats-container {
+        margin: 0.3rem 0;
+        padding: 0.3rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Hiển thị thông tin mô hình trong nhóm
+st.sidebar.markdown('<div class="model-stats-container"><div class="metric-header"><div class="metric-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8.00002C20.9996 7.6493 20.9071 7.30483 20.7315 7.00119C20.556 6.69754 20.3037 6.44539 20 6.27002L13 2.27002C12.696 2.09449 12.3511 2.00208 12 2.00208C11.6489 2.00208 11.304 2.09449 11 2.27002L4 6.27002C3.69626 6.44539 3.44398 6.69754 3.26846 7.00119C3.09294 7.30483 3.00036 7.6493 3 8.00002V16C3.00036 16.3508 3.09294 16.6952 3.26846 16.9989C3.44398 17.3025 3.69626 17.5547 4 17.73L11 21.73C11.304 21.9056 11.6489 21.998 12 21.998C12.3511 21.998 12.696 21.9056 13 21.73L20 17.73C20.3037 17.5547 20.556 17.3025 20.7315 16.9989C20.9071 16.6952 20.9996 16.3508 21 16Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="metric-title">Thông số mô hình</span></div>', unsafe_allow_html=True)
+
+# Sử dụng columns để hiển thị metrics độ chính xác và RMSE
+col1, col2 = st.sidebar.columns(2)
+with col1:
+    st.markdown("""
+    <div class="enhanced-metric-card">
+        <div class="metric-title" style="text-align:center;">RẤ Score</div>
+        <div class="metric-value">{r2_score:.4f}</div>
+        <div class="metric-description">Độ chính xác</div>
+    </div>
+    """.format(r2_score=r2_score), unsafe_allow_html=True)
+
+with col2:
+    st.markdown("""
+    <div class="enhanced-metric-card">
+        <div class="metric-title" style="text-align:center;">RMSE</div>
+        <div class="metric-value">{rmse:.4f}</div>
+        <div class="metric-description">Số liệu chính xác</div>
+    </div>
+    """.format(rmse=rmse), unsafe_allow_html=True)
+
+# Thêm khoảng cách giữa các card metric và số lượng dữ liệu
+st.sidebar.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
+# Số lượng bất động sản - hiển thị với card rộng hơn
+st.sidebar.markdown("""
+<div class="enhanced-metric-card" style="background: linear-gradient(145deg, rgba(44,130,96,0.5), rgba(26,93,59,0.7)); border-color: rgba(76,255,154,0.3); height: 125px; margin-top: 10px;">
+    <div class="metric-header">
+        <div class="metric-icon" style="background-color: rgba(76,255,154,0.2);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 3V21H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M19 5L9 15L6 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <span class="metric-title">Số lượng dữ liệu</span>
+    </div>
+    <div class="metric-value" style="color: #4dff9e; font-size: 1.8rem;">{data_count:,}</div>
+    <div class="metric-description">Bất động sản trong dữ liệu</div>
+</div>
+</div>
+""".format(data_count=len(data)), unsafe_allow_html=True)
 
 # Footer của sidebar
-st.sidebar.markdown("---")
-st.sidebar.info(
-    "Dự án Dự đoán giá bất động sản Việt Nam sử dụng PySpark, Streamlit và Ngrok. "
-    "Dữ liệu được thu thập từ nhadat.cafeland.vn."
-)
+st.sidebar.markdown("<hr style='margin: 1.5rem 0; opacity: 0.2'>", unsafe_allow_html=True)
+st.sidebar.markdown("<div style='padding: 0 1rem; color: rgba(255,255,255,0.7); font-size: 0.8rem;'>", unsafe_allow_html=True)
+st.sidebar.markdown("""
+<div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 0.5rem">
+        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 16V12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Dự đoán giá BĐS Việt Nam</span>
+</div>
 
-# CHẾ ĐỘ 1: DỰ ĐOÁN GIÁ
+<div style="display: flex; align-items: center;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 0.5rem">
+        <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Nguồn: nhadat.cafeland.vn</span>
+</div>
+
+<div style="display: flex; align-items: center; margin-top: 0.5rem;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 0.5rem">
+        <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Nhóm 5</span>
+</div>
+""", unsafe_allow_html=True)
+st.sidebar.markdown("</div>", unsafe_allow_html=True)
+
+# MARK: - Chế độ Dự đoán giá
 if app_mode == "Dự đoán giá":
-    st.title("🏘️ Dự đoán giá bất động sản Việt Nam")
+    st.markdown("<h1 class='left-aligned-title'>🏘️ Dự đoán giá bất động sản Việt Nam</h1>", unsafe_allow_html=True)
     st.markdown("### Nhập thông tin về bất động sản để nhận dự đoán giá")
 
     # Tạo layout với 2 cột
@@ -404,12 +859,12 @@ if app_mode == "Dự đoán giá":
     if st.button("Dự đoán giá", type="primary"):
         # Chuẩn bị dữ liệu đầu vào
         input_data = {
-            "area_m2": area,
+            "area (m2)": area,
             "bedroom_num": bedroom_num,
             "floor_num": floor_num,
             "toilet_num": toilet_num,
             "livingroom_num": livingroom_num,
-            "street_width_m": street_width,
+            "street (m)": street_width,
             "city_province": city,
             "district": district,
             "category": category,
@@ -471,8 +926,9 @@ if app_mode == "Dự đoán giá":
                 st.error(f"Lỗi khi dự đoán: {e}")
 
 # CHẾ ĐỘ 2: PHÂN TÍCH DỮ LIỆU
+# MARK: - Chế độ Phân tích dữ liệu
 elif app_mode == "Phân tích dữ liệu":
-    st.title("📊 Phân tích dữ liệu bất động sản Việt Nam")
+    st.markdown("<h1 class='left-aligned-title'>📊 Phân tích dữ liệu bất động sản Việt Nam</h1>", unsafe_allow_html=True)
 
     # Tạo tabs để phân chia nội dung
     tab1, tab2, tab3 = st.tabs(["📈 Phân phối giá", "📍 Phân tích vị trí", "🏠 Đặc điểm bất động sản"])
@@ -644,9 +1100,9 @@ elif app_mode == "Phân tích dữ liệu":
         )
         st.plotly_chart(fig, use_container_width=True)
 
-# CHẾ ĐỘ 3: VỀ DỰ ÁN
+# MARK: - Chế độ Về dự án
 else:
-    st.title("ℹ️ Về dự án dự đoán giá bất động sản Việt Nam")
+    st.markdown("<h1 class='left-aligned-title'>ℹ️ Về dự án dự đoán giá bất động sản Việt Nam</h1>", unsafe_allow_html=True)
 
     # Giới thiệu dự án
     st.markdown("""

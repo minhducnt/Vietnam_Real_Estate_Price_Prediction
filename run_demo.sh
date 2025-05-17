@@ -65,28 +65,28 @@ echo "🌐 Bạn muốn chạy ứng dụng với ngrok để tạo URL public k
 read use_ngrok
 
 if [[ $use_ngrok == "y" || $use_ngrok == "Y" ]]; then
-    # Kiểm tra xem file .env có tồn tại và có chứa NGROK_TOKEN
-    if [ -f ".env" ] && grep -q "NGROK_TOKEN=" ".env"; then
-        # Đọc token từ file .env
-        ngrok_token=$(grep "NGROK_TOKEN=" ".env" | cut -d'=' -f2)
+    # Kiểm tra xem file .env.local có tồn tại và có chứa NGROK_TOKEN
+    if [ -f ".env.local" ] && grep -q "NGROK_TOKEN=" ".env.local"; then
+        # Đọc token từ file .env.local
+        ngrok_token=$(grep "NGROK_TOKEN=" ".env.local" | cut -d'=' -f2)
 
         # Kiểm tra xem token có giá trị hay không
         if [ -z "$ngrok_token" ]; then
-            echo "🔑 Không tìm thấy token trong file .env. Vui lòng nhập ngrok authtoken của bạn (đăng ký tại ngrok.com):"
+            echo "🔑 Không tìm thấy token trong file .env.local. Vui lòng nhập ngrok authtoken của bạn (đăng ký tại ngrok.com):"
             read -s ngrok_token
-            # Cập nhật file .env với token mới
-            sed -i '' "s/NGROK_TOKEN=/NGROK_TOKEN=$ngrok_token/" .env
+            # Cập nhật file .env.local với token mới
+            sed -i '' "s/NGROK_TOKEN=/NGROK_TOKEN=$ngrok_token/" .env.local
         else
-            echo "🔑 Đã tìm thấy ngrok token trong file .env"
+            echo "🔑 Đã tìm thấy ngrok token trong file .env.local"
         fi
     else
         echo "🔑 Nhập ngrok authtoken của bạn (đăng ký tại ngrok.com):"
         read -s ngrok_token
-        # Lưu token vào file .env nếu file tồn tại
-        if [ -f ".env" ]; then
-            echo "NGROK_TOKEN=$ngrok_token" >>.env
+        # Lưu token vào file .env.local nếu file tồn tại
+        if [ -f ".env.local" ]; then
+            echo "NGROK_TOKEN=$ngrok_token" >>.env.local
         else
-            echo "NGROK_TOKEN=$ngrok_token" >.env
+            echo "NGROK_TOKEN=$ngrok_token" >.env.local
         fi
     fi
 
