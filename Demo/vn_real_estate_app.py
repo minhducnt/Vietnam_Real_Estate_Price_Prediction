@@ -73,6 +73,7 @@ st.markdown('''
         text-align: center;
         margin-bottom: 1.6rem;
         border-bottom: 1px solid rgba(255,255,255,0.1);
+        border-radius: 0.8rem;
     }
 
     .sidebar-header img {
@@ -205,13 +206,6 @@ st.markdown('''
     .sidebar-section-title svg {
         margin-right: 0.5rem;
     }
-    .card {
-        background-color: white;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-    }
 
     /* Left-aligned title styling */
     .left-aligned-title {
@@ -230,14 +224,21 @@ st.markdown('''
 # MARK: - Khởi tạo phiên Spark
 @st.cache_resource
 def get_spark_session():
-    """Khởi tạo và trả về một phiên Spark."""
-    return (
-        SparkSession.builder
-        .appName("VNRealEstatePricePrediction")
-        .config("spark.driver.memory", "2g")
-        .master("local[*]")
-        .getOrCreate()
-    )
+    """Khởi tạo và trả về một phiên Spark với xử lý lỗi."""
+    try:
+        spark = (
+            SparkSession.builder
+            .appName("VNRealEstatePricePrediction")
+            .config("spark.driver.memory", "2g")
+            .master("local[*]")
+            .getOrCreate()
+        )
+        # Kiểm tra kết nối
+        spark.sparkContext.parallelize([1]).collect()
+        return spark
+    except Exception as e:
+        st.warning(f"Không thể khởi tạo Spark: {e}. Sẽ sử dụng phương pháp dự phòng.")
+        return None
 
 # MARK: - Đọc dữ liệu
 @st.cache_data
@@ -386,6 +387,47 @@ def train_model(data):
         st.error(f"Lỗi khi huấn luyện mô hình: {e}")
         raise e
 
+# MARK: - Dự đoán giá dựa trên giá trung bình (dự phòng)
+def predict_price_fallback(input_data, data):
+    """Phương pháp dự phòng cho việc dự đoán giá khi Spark không khả dụng."""
+    try:
+        # Lọc dữ liệu dựa trên vị trí (tỉnh/thành phố và quận/huyện)
+        city = input_data.get("city_province")
+        district = input_data.get("district")
+        category = input_data.get("category")
+        area = input_data.get("area (m2)")
+
+        # Lọc dữ liệu tương tự
+        similar_properties = data[
+            (data["city_province"] == city) &
+            (data["district"] == district) &
+            (data["category"] == category) &
+            (data["area_m2"] > area * 0.7) &
+            (data["area_m2"] < area * 1.3)
+        ]
+
+        # Nếu không có dữ liệu tương tự, mở rộng phạm vi tìm kiếm
+        if len(similar_properties) < 3:
+            similar_properties = data[
+                (data["city_province"] == city) &
+                (data["district"] == district)
+            ]
+
+        # Nếu vẫn không có, lấy trung bình toàn thành phố
+        if len(similar_properties) < 3:
+            similar_properties = data[(data["city_province"] == city)]
+
+        # Tính giá trung bình
+        if len(similar_properties) > 0:
+            avg_price = similar_properties["price_per_m2"].mean()
+            return avg_price
+        else:
+            # Mặc định nếu không có dữ liệu tương tự
+            return data["price_per_m2"].mean()
+    except Exception as e:
+        st.error(f"Lỗi khi dự đoán giá dự phòng: {e}")
+        return 30000000  # Giá mặc định nếu có lỗi
+
 # MARK: - Dự đoán giá
 def predict_price(model, input_data):
     """Dự đoán giá dựa trên đầu vào của người dùng."""
@@ -415,29 +457,36 @@ def predict_price(model, input_data):
             data_copy['street (m)'] = data_copy['street_width_m'].copy()
             del data_copy['street_width_m']
 
-        # Chuyển đổi dữ liệu sang Spark DataFrame
+        # Kiểm tra nếu Spark session tồn tại
         spark = get_spark_session()
-        spark_df = convert_to_spark(data_copy)
 
-        # Dự đoán giá
-        try:
-            predictions = model.transform(spark_df)
+        if spark is not None:
+            try:
+                # Chuyển đổi dữ liệu sang Spark DataFrame
+                spark_df = convert_to_spark(data_copy)
 
-            # Lấy kết quả dự đoán
-            prediction_value = predictions.select("prediction").collect()[0][0]
+                # Dự đoán giá
+                predictions = model.transform(spark_df)
 
-            return prediction_value
-        except Exception as transform_error:
-            st.error(f"Lỗi khi chuyển đổi dữ liệu: {transform_error}")
-            # Hiển thị thông tin bổ sung về mô hình để debug
-            st.write("Thông tin về mô hình:")
-            st.write(str(model)[:500] + "..." if len(str(model)) > 500 else str(model))
-            return None
+                # Lấy kết quả dự đoán
+                prediction_value = predictions.select("prediction").collect()[0][0]
+                if prediction_value is not None:
+                    return prediction_value
+                else:
+                    # Sử dụng phương pháp dự phòng nếu giá trị dự đoán là None
+                    st.warning("Kết quả dự đoán không hợp lệ, sử dụng phương pháp dự phòng.")
+                    return predict_price_fallback(input_data, st.session_state.data)
+            except Exception as e:
+                st.warning(f"Lỗi khi dự đoán với Spark: {e}. Sử dụng phương pháp dự phòng.")
+                return predict_price_fallback(input_data, st.session_state.data)
+        else:
+            # Sử dụng phương pháp dự phòng nếu không có Spark
+            st.info("Sử dụng phương pháp dự phòng để dự đoán giá.")
+            return predict_price_fallback(input_data, st.session_state.data)
     except Exception as e:
-        st.error(f"Lỗi khi dự đoán: {e}")
-        import traceback
-        st.error(traceback.format_exc())
-        return None
+        st.error(f"Lỗi khi chuẩn bị dữ liệu: {e}")
+        # Sử dụng giá trị mặc định nếu tất cả các phương pháp đều thất bại
+        return 30000000  # Giá mặc định nếu có lỗi
 
 # MARK: - Kết nối Ngrok
 def run_ngrok():
@@ -720,44 +769,64 @@ st.markdown("""
 # Hiển thị thông tin mô hình trong nhóm
 st.sidebar.markdown('<div class="model-stats-container"><div class="metric-header"><div class="metric-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8.00002C20.9996 7.6493 20.9071 7.30483 20.7315 7.00119C20.556 6.69754 20.3037 6.44539 20 6.27002L13 2.27002C12.696 2.09449 12.3511 2.00208 12 2.00208C11.6489 2.00208 11.304 2.09449 11 2.27002L4 6.27002C3.69626 6.44539 3.44398 6.69754 3.26846 7.00119C3.09294 7.30483 3.00036 7.6493 3 8.00002V16C3.00036 16.3508 3.09294 16.6952 3.26846 16.9989C3.44398 17.3025 3.69626 17.5547 4 17.73L11 21.73C11.304 21.9056 11.6489 21.998 12 21.998C12.3511 21.998 12.696 21.9056 13 21.73L20 17.73C20.3037 17.5547 20.556 17.3025 20.7315 16.9989C20.9071 16.6952 20.9996 16.3508 21 16Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="metric-title">Thông số mô hình</span></div>', unsafe_allow_html=True)
 
-# Sử dụng columns để hiển thị metrics độ chính xác và RMSE
-col1, col2 = st.sidebar.columns(2)
-with col1:
-    st.markdown("""
-    <div class="enhanced-metric-card">
-        <div class="metric-title" style="text-align:center;">RẤ Score</div>
-        <div class="metric-value">{r2_score:.4f}</div>
-        <div class="metric-description">Độ chính xác</div>
+# Metrics độ chính xác
+st.sidebar.markdown("""
+<div class="enhanced-metric-card" style="background: linear-gradient(145deg, rgba(51,97,255,0.3), rgba(29,55,147,0.5));
+                           border-color: rgba(100,149,237,0.3); padding: 10px; margin: 5px 0;">
+    <div class="metric-header" style="display:flex; align-items:center;">
+        <div class="metric-icon" style="background-color: rgba(100,149,237,0.2); margin-right:8px; padding:5px; border-radius:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <span class="metric-title">R² Score</span>
     </div>
-    """.format(r2_score=r2_score), unsafe_allow_html=True)
+    <div class="metric-value" style="color: #84a9ff; font-size: 1.5rem; text-align:center; margin:5px 0;">{r2_score:.4f}</div>
+</div>
+""".format(r2_score=r2_score), unsafe_allow_html=True)
 
-with col2:
-    st.markdown("""
-    <div class="enhanced-metric-card">
-        <div class="metric-title" style="text-align:center;">RMSE</div>
-        <div class="metric-value">{rmse:.4f}</div>
-        <div class="metric-description">Số liệu chính xác</div>
+# Thêm khoảng cách giữa hai card thông số mô hình
+st.sidebar.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+
+# Metrics độ lệch chuẩn - RMSE
+st.sidebar.markdown("""
+<div class="enhanced-metric-card" style="background: linear-gradient(145deg, rgba(139,92,246,0.3), rgba(76,29,149,0.5));
+                           border-color: rgba(167,139,250,0.3); padding: 10px; margin: 5px 0;">
+    <div class="metric-header" style="display:flex; align-items:center;">
+        <div class="metric-icon" style="background-color: rgba(167,139,250,0.2); margin-right:8px; padding:5px; border-radius:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 22V12H15V22" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <span class="metric-title">RMSE</span>
     </div>
-    """.format(rmse=rmse), unsafe_allow_html=True)
+    <div class="metric-value" style="color: #c4b5fd; font-size: 1.5rem; text-align:center; margin:5px 0;">{rmse:.4f}</div>
+</div>
+""".format(rmse=rmse), unsafe_allow_html=True)
 
 # Thêm khoảng cách giữa các card metric và số lượng dữ liệu
 st.sidebar.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
 
-# Số lượng bất động sản - hiển thị với card rộng hơn
+# Các thống kê dữ liệu - hiển thị riêng từng dòng
+st.sidebar.markdown('<div class="model-stats-container"><div class="metric-header"><div class="metric-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8.00002C20.9996 7.6493 20.9071 7.30483 20.7315 7.00119C20.556 6.69754 20.3037 6.44539 20 6.27002L13 2.27002C12.696 2.09449 12.3511 2.00208 12 2.00208C11.6489 2.00208 11.304 2.09449 11 2.27002L4 6.27002C3.69626 6.44539 3.44398 6.69754 3.26846 7.00119C3.09294 7.30483 3.00036 7.6493 3 8.00002V16C3.00036 16.3508 3.09294 16.6952 3.26846 16.9989C3.44398 17.3025 3.69626 17.5547 4 17.73L11 21.73C11.304 21.9056 11.6489 21.998 12 21.998C12.3511 21.998 12.696 21.9056 13 21.73L20 17.73C20.3037 17.5547 20.556 17.3025 20.7315 16.9989C20.9071 16.6952 20.9996 16.3508 21 16Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="metric-title">Thống kê dữ liệu</span></div>', unsafe_allow_html=True)
+
+# Số lượng bất động sản
 st.sidebar.markdown("""
-<div class="enhanced-metric-card" style="background: linear-gradient(145deg, rgba(44,130,96,0.5), rgba(26,93,59,0.7)); border-color: rgba(76,255,154,0.3); height: 125px; margin-top: 10px;">
-    <div class="metric-header">
-        <div class="metric-icon" style="background-color: rgba(76,255,154,0.2);">
+<div class="enhanced-metric-card" style="background: linear-gradient(145deg, rgba(44,130,96,0.5), rgba(26,93,59,0.7));
+                           border-color: rgba(76,255,154,0.3); padding: 10px; margin: 5px 0;">
+    <div class="metric-header" style="display:flex; align-items:center;">
+        <div class="metric-icon" style="background-color: rgba(76,255,154,0.2); margin-right:8px; padding:5px; border-radius:6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 3V21H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M19 5L9 15L6 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </div>
-        <span class="metric-title">Số lượng dữ liệu</span>
+        <span class="metric-title">Số lượng bất động sản</span>
     </div>
-    <div class="metric-value" style="color: #4dff9e; font-size: 1.8rem;">{data_count:,}</div>
-    <div class="metric-description">Bất động sản trong dữ liệu</div>
-</div>
+    <div class="metric-value" style="color: #4dff9e; font-size: 1.8rem; text-align:center; margin:5px 0;">{data_count:,}</div>
 </div>
 """.format(data_count=len(data)), unsafe_allow_html=True)
 
@@ -806,8 +875,6 @@ if app_mode == "Dự đoán giá":
         st.markdown("#### 📍 Vị trí")
         # Tạo card bằng cách dùng container với CSS tùy chỉnh
         with st.container():
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-
             # Chọn tỉnh/thành phố
             city_options = sorted(data["city_province"].unique())
             city = st.selectbox("Tỉnh/Thành phố", city_options)
@@ -820,8 +887,6 @@ if app_mode == "Dự đoán giá":
 
         st.markdown("#### 🏠 Đặc điểm bất động sản")
         with st.container():
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-
             # Thông tin cơ bản về BĐS
             area = st.number_input("Diện tích (m²)", min_value=10.0, max_value=1000.0, value=80.0, step=10.0)
             category_options = sorted(data["category"].unique())
@@ -836,8 +901,6 @@ if app_mode == "Dự đoán giá":
     with col2:
         st.markdown("#### 🚪 Thông tin phòng ốc")
         with st.container():
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-
             # Thông tin phòng ốc
             bedroom_num = st.number_input("Số phòng ngủ", min_value=0, max_value=10, value=2, step=1)
             floor_num = st.number_input("Số tầng", min_value=0, max_value=50, value=2, step=1)
@@ -848,8 +911,6 @@ if app_mode == "Dự đoán giá":
 
         st.markdown("#### 🛣️ Thông tin khu vực")
         with st.container():
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-
             # Thông tin khu vực
             street_width = st.number_input("Chiều rộng đường (m)", min_value=0.0, max_value=50.0, value=8.0, step=0.5)
 
@@ -887,24 +948,30 @@ if app_mode == "Dự đoán giá":
 
                 # Thực hiện dự đoán
                 predicted_price_per_m2 = predict_price(model, input_data)
-                total_price = predicted_price_per_m2 * area
 
-                # Hiển thị kết quả trong container đẹp
-                st.markdown("#### 📊 Kết quả dự đoán")
-                with st.container():
-                    st.markdown('<div class="card" style="background-color: #eaf7ea;">', unsafe_allow_html=True)
+                # Kiểm tra kết quả dự đoán không phải là None
+                if predicted_price_per_m2 is None:
+                    st.error("Không thể dự đoán giá. Vui lòng thử lại sau.")
+                else:
+                    # Tính toán tổng giá
+                    total_price = predicted_price_per_m2 * area
 
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.metric("Giá dự đoán / m²", f"{predicted_price_per_m2:,.0f} VND")
-                    with col2:
-                        st.metric("Tổng giá dự đoán", f"{total_price:,.0f} VND")
+                    # Hiển thị kết quả trong container đẹp
+                    st.markdown("#### 📊 Kết quả dự đoán")
+                    with st.container():
+                        st.markdown('<div class="card" style="background-color: #eaf7ea;">', unsafe_allow_html=True)
 
-                    # Hiển thị theo tỷ VND cho dễ đọc
-                    total_price_billion = total_price / 1e9
-                    st.info(f"💰 Tổng giá dự đoán: **{total_price_billion:.2f} tỷ VND**")
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.metric("Giá dự đoán / m²", f"{predicted_price_per_m2:,.0f} VND")
+                        with col2:
+                            st.metric("Tổng giá dự đoán", f"{total_price:,.0f} VND")
 
-                    st.markdown('</div>', unsafe_allow_html=True)
+                        # Hiển thị theo tỷ VND cho dễ đọc
+                        total_price_billion = total_price / 1e9
+                        st.info(f"💰 Tổng giá dự đoán: **{total_price_billion:.2f} tỷ VND**")
+
+                        st.markdown('</div>', unsafe_allow_html=True)
 
                 # Hiển thị các bất động sản tương tự
                 st.markdown("#### 🔍 Bất động sản tương tự")
