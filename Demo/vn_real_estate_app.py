@@ -397,12 +397,12 @@ else:
     st.stop()
 
 # MARK: - Sidebar
-# Header của sidebar với logo
 st.sidebar.markdown("""
 <div class="sidebar-header">
     <img src="https://img.icons8.com/fluency/96/000000/home.png" alt="Logo">
     <h2>BĐS Việt Nam</h2>
     <p>AI Dự Đoán Giá</p>
+    <p>Nhóm 05</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -417,20 +417,15 @@ def set_app_mode(mode):
 # Lấy mode hiện tại
 app_mode = st.session_state['app_mode']
 
-# Menu options với icons và khoảng cách
-modes = ["Dự đoán giá", "Phân tích dữ liệu", "Về dự án"]
-modes_icons = ["🏠 ", "📊 ", "ℹ️ "]
+# Danh sách các chế độ ứng dụng
+app_modes = ["Dự đoán giá", "Phân tích dữ liệu", "Thống kê", "Về dự án"]
 
 # Container cho menu
 menu_container = st.sidebar.container()
 
 # Tạo các button
-for i, mode in enumerate(modes):
-    active_class = "sidebar-nav-button-active" if mode == app_mode else ""
-    # Sử dụng nhiều khoảng trắng hơn để tạo khoảng cách
-    button_label = f"{modes_icons[i]}        {mode}"
-
-    if menu_container.button(button_label, key=f"nav_{i}",
+for i, mode in enumerate(app_modes):
+    if menu_container.button(mode, key=f"nav_{i}",
                            use_container_width=True,
                            on_click=set_app_mode,
                            args=(mode,),
@@ -476,31 +471,8 @@ st.sidebar.markdown("""
 </div>
 """.format(rmse=rmse), unsafe_allow_html=True)
 
-# Thêm khoảng cách giữa các card metric và số lượng dữ liệu
-st.sidebar.markdown("""<div class="spacer-20"></div>""", unsafe_allow_html=True)
-
-# Các thống kê dữ liệu - hiển thị riêng từng dòng
-st.sidebar.markdown('<div class="model-stats-container"><div class="metric-header"><div class="metric-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8.00002C20.9996 7.6493 20.9071 7.30483 20.7315 7.00119C20.556 6.69754 20.3037 6.44539 20 6.27002L13 2.27002C12.696 2.09449 12.3511 2.00208 12 2.00208C11.6489 2.00208 11.304 2.09449 11 2.27002L4 6.27002C3.69626 6.44539 3.44398 6.69754 3.26846 7.00119C3.09294 7.30483 3.00036 7.6493 3 8.00002V16C3.00036 16.3508 3.09294 16.6952 3.26846 16.9989C3.44398 17.3025 3.69626 17.5547 4 17.73L11 21.73C11.304 21.9056 11.6489 21.998 12 21.998C12.3511 21.998 12.696 21.9056 13 21.73L20 17.73C20.3037 17.5547 20.556 17.3025 20.7315 16.9989C20.9071 16.6952 20.9996 16.3508 21 16Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="metric-title">Thống kê dữ liệu</span></div>', unsafe_allow_html=True)
-
-# Số lượng bất động sản
-st.sidebar.markdown("""
-<div class="enhanced-metric-card green-gradient">
-    <div class="metric-header">
-        <div class="metric-icon green-icon-bg">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 3V21H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M19 5L9 15L6 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </div>
-        <span class="metric-title">Số lượng bất động sản</span>
-    </div>
-    <div class="large-metric-value green-value">{data_count:,}</div>
-</div>
-""".format(data_count=len(data)), unsafe_allow_html=True)
-
 # Footer của sidebar
 st.sidebar.markdown("""<hr class="hr-divider">""", unsafe_allow_html=True)
-st.sidebar.markdown("""<div class="info-text">""", unsafe_allow_html=True)
 st.sidebar.markdown("""
 <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="info-icon">
@@ -517,16 +489,6 @@ st.sidebar.markdown("""
         <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span>Nguồn: nhadat.cafeland.vn</span>
-</div>
-
-<div class="flex-container-spaced">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="info-icon">
-        <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span>Nhóm 5</span>
 </div>
 """, unsafe_allow_html=True)
 st.sidebar.markdown("</div>", unsafe_allow_html=True)
@@ -986,8 +948,504 @@ elif app_mode == "Phân tích dữ liệu":
         )
         st.plotly_chart(fig, use_container_width=True)
 
+# MARK: - Chế độ Thống kê
+elif app_mode == "Thống kê":
+    # Tiêu đề trang
+    statistics_header = """
+    <div class="modern-header">
+        <div class="header-title">
+            <div class="header-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                    <line x1="2" y1="20" x2="22" y2="20"></line>
+                </svg>
+            </div>
+            <div class="header-text">Thống kê dữ liệu</div>
+        </div>
+        <div class="header-desc">
+            Thông tin thống kê về dữ liệu bất động sản tại Việt Nam
+        </div>
+    </div>
+    """
+    st.markdown(statistics_header, unsafe_allow_html=True)
+
+    # Kiểm tra tên cột liên quan đến tỉnh/thành phố trong dữ liệu
+    location_column = None
+    possible_location_columns = ['province', 'city', 'location', 'tinh_thanh', 'thanh_pho', 'district']
+
+    for col in possible_location_columns:
+        if col in data.columns:
+            location_column = col
+            break
+
+    if location_column is None:
+        st.error("Không tìm thấy cột chứa thông tin về tỉnh/thành phố trong dữ liệu. Vui lòng kiểm tra lại dữ liệu.")
+        # Nếu không tìm thấy, sử dụng cột đầu tiên làm ví dụ
+        if len(data.columns) > 0:
+            location_column = data.columns[0]
+            st.warning(f"Đang sử dụng cột '{location_column}' làm dữ liệu thay thế cho mục đích hiển thị.")
+        else:
+            st.stop()
+
+    # Kiểm tra tên cột liên quan đến giá trong dữ liệu
+    price_column = None
+    possible_price_columns = ['price', 'gia', 'price_per_m2', 'price_m2', 'gia_tien', 'total_price', 'value']
+
+    for col in possible_price_columns:
+        if col in data.columns:
+            price_column = col
+            break
+
+    if price_column is None:
+        st.error("Không tìm thấy cột chứa thông tin về giá trong dữ liệu. Vui lòng kiểm tra lại dữ liệu.")
+        # Tìm cột chứa dữ liệu số để sử dụng làm giá
+        for col in data.columns:
+            if pd.api.types.is_numeric_dtype(data[col]):
+                price_column = col
+                st.warning(f"Đang sử dụng cột số '{price_column}' làm dữ liệu thay thế cho giá.")
+                break
+
+        if price_column is None and len(data.columns) > 0:
+            price_column = data.columns[0]  # Sử dụng cột đầu tiên nếu không có cột số
+            st.warning(f"Đang sử dụng cột '{price_column}' làm dữ liệu thay thế cho giá.")
+
+        if price_column is None:
+            st.stop()
+
+    # Thêm một container chứa các tab
+    tab1, tab2, tab3 = st.tabs(["Phân phối giá", "Phân tich khu vực", "Tương quan"])
+
+    # Tab 1: Phân phối giá
+    with tab1:
+        st.markdown("## Phân phối giá bất động sản")
+
+        # Thông tin thống kê tổng quan
+        avg_price = data[price_column].mean()
+        max_price = data[price_column].max()
+        min_price = data[price_column].min()
+        median_price = data[price_column].median()
+
+        # Hiển thị thống kê tổng quan trong grid
+        st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="data-grid">
+            <div class="stat-card">
+                <div class="stat-value">{:,.0f}</div>
+                <div class="stat-label">Giá trung bình (triệu VNĐ)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,.0f}</div>
+                <div class="stat-label">Giá trung vị (triệu VNĐ)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,.0f}</div>
+                <div class="stat-label">Giá cao nhất (triệu VNĐ)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,d}</div>
+                <div class="stat-label">Tổng số BĐS</div>
+            </div>
+        </div>
+        """.format(avg_price, median_price, max_price, len(data)), unsafe_allow_html=True)
+
+        # Card 1: Phân tích giá trung bình theo thành phố/tỉnh
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="3" height="10"></rect>
+                        <rect x="8" y="5" width="3" height="12"></rect>
+                        <rect x="14" y="3" width="3" height="14"></rect>
+                        <rect x="20" y="9" width="3" height="8"></rect>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Giá trung bình theo khu vực</div>
+                    <div class="chart-desc">Top 10 khu vực có giá BĐS trung bình cao nhất</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Tính giá trung bình theo tỉnh/thành phố
+        avg_price_by_location = data.groupby(location_column)[price_column].mean().reset_index()
+        avg_price_by_location = avg_price_by_location.sort_values(price_column, ascending=False)
+
+        # Vẽ biểu đồ cột cho giá trung bình
+        fig1 = px.bar(avg_price_by_location.head(10), x=location_column, y=price_column,
+                    labels={price_column:'Giá trung bình (triệu VNĐ)', location_column:location_column.replace('_', ' ').title()},
+                    color=price_column,
+                    color_continuous_scale='Viridis')
+
+        # Cập nhật layout của biểu đồ
+        fig1.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='white'),
+            margin=dict(t=0, b=0, l=0, r=0),
+            coloraxis_colorbar=dict(tickfont=dict(color='white'))
+        )
+        fig1.update_xaxes(tickfont=dict(color='white'))
+        fig1.update_yaxes(tickfont=dict(color='white'))
+
+        with st.container():
+            st.plotly_chart(fig1, use_container_width=True)
+
+        # Card 2: Biểu đồ phân phối giá
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18"></path>
+                        <path d="M18 12h-2"></path>
+                        <path d="M13 8h-2"></path>
+                        <path d="M8 16H6"></path>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Phân phối giá bất động sản</div>
+                    <div class="chart-desc">Số lượng BĐS theo các khoảng giá khác nhau (không bao gồm 1% BĐS có giá cao nhất)</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Lọc dữ liệu giá trong khoảng hợp lý để biểu đồ đẹp hơn
+        filtered_data = data[data[price_column] < data[price_column].quantile(0.99)]
+
+        # Vẽ biểu đồ histogram
+        fig2 = px.histogram(filtered_data, x=price_column, nbins=50,
+                        labels={price_column:'Giá (triệu VNĐ)'},
+                        opacity=0.8,
+                        color_discrete_sequence=['#4169E1'])
+
+        # Cập nhật layout của biểu đồ
+        fig2.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='white'),
+            margin=dict(t=0, b=0, l=0, r=0)
+        )
+        fig2.update_xaxes(tickfont=dict(color='white'))
+        fig2.update_yaxes(tickfont=dict(color='white'))
+
+        with st.container():
+            st.plotly_chart(fig2, use_container_width=True)
+
+    # Tab 2: Phân tích khu vực
+    with tab2:
+        st.markdown("## Phân tích theo khu vực")
+
+        # Tổng hợp thông tin theo khu vực
+        total_regions = data[location_column].nunique()
+        top_region = data[location_column].value_counts().index[0]
+        region_max_count = data[location_column].value_counts().max()
+        region_min_count = data[location_column].value_counts().min()
+
+        # Hiển thị thống kê trong grid
+        st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="data-grid">
+            <div class="stat-card">
+                <div class="stat-value">{:,d}</div>
+                <div class="stat-label">Tổng số khu vực</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{}</div>
+                <div class="stat-label">Khu vực phổ biến nhất</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,d}</div>
+                <div class="stat-label">Số BĐS nhiều nhất</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,d}</div>
+                <div class="stat-label">Số BĐS ít nhất</div>
+            </div>
+        </div>
+        """.format(total_regions, top_region, region_max_count, region_min_count), unsafe_allow_html=True)
+
+        # Card 1: Số lượng bất động sản theo khu vực
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                        <circle cx="12" cy="12" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Số lượng BĐS theo khu vực</div>
+                    <div class="chart-desc">Top 10 khu vực có nhiều bất động sản nhất trong dữ liệu</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        property_count_by_location = data[location_column].value_counts().reset_index()
+        property_count_by_location.columns = [location_column, 'count']
+        property_count_by_location = property_count_by_location.sort_values('count', ascending=False)
+
+        # Vẽ biểu đồ cột cho số lượng BDS
+        fig3 = px.bar(property_count_by_location.head(10), x=location_column, y='count',
+                    labels={'count':'Số lượng bất động sản', location_column:location_column.replace('_', ' ').title()},
+                    color='count',
+                    color_continuous_scale='Viridis')
+
+        # Cập nhật layout của biểu đồ
+        fig3.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='white'),
+            margin=dict(t=0, b=0, l=0, r=0),
+            coloraxis_colorbar=dict(tickfont=dict(color='white'))
+        )
+        fig3.update_xaxes(tickfont=dict(color='white'))
+        fig3.update_yaxes(tickfont=dict(color='white'))
+
+        with st.container():
+            st.plotly_chart(fig3, use_container_width=True)
+
+        # Kiểm tra cột diện tích
+        area_column = 'area' if 'area' in data.columns else None
+        if area_column is None:
+            for col in ['dien_tich', 'area_m2', 'square_meters', 'dientich', 'dt']:
+                if col in data.columns:
+                    area_column = col
+                    break
+
+        if area_column is None:
+            # Tìm cột số khác nếu không có area
+            for col in data.columns:
+                if col != price_column and pd.api.types.is_numeric_dtype(data[col]):
+                    area_column = col
+                    st.warning(f"Đang sử dụng cột '{area_column}' làm dữ liệu thay thế cho diện tích.")
+                    break
+
+        if area_column is None:
+            st.error("Không tìm thấy cột chứa thông tin về diện tích trong dữ liệu.")
+        else:
+            # Card 2: Phân phối diện tích theo tỉnh/thành phố
+            st.markdown("""
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <div class="chart-title-container">
+                        <div class="chart-title">Diện tích trung bình theo khu vực</div>
+                        <div class="chart-desc">Top 10 khu vực có diện tích trung bình lớn nhất</div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            avg_area_by_location = data.groupby(location_column)[area_column].mean().reset_index()
+            avg_area_by_location = avg_area_by_location.sort_values(area_column, ascending=False)
+
+            fig4 = px.bar(avg_area_by_location.head(10), x=location_column, y=area_column,
+                        labels={area_column:'Diện tích trung bình (m²)', location_column:location_column.replace('_', ' ').title()},
+                        color=area_column,
+                        color_continuous_scale='Viridis')
+
+            # Cập nhật layout của biểu đồ
+            fig4.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='white'),
+                margin=dict(t=0, b=0, l=0, r=0),
+                coloraxis_colorbar=dict(tickfont=dict(color='white'))
+            )
+            fig4.update_xaxes(tickfont=dict(color='white'))
+            fig4.update_yaxes(tickfont=dict(color='white'))
+
+            with st.container():
+                st.plotly_chart(fig4, use_container_width=True)
+
+    # Tab 3: Tương quan
+    with tab3:
+        st.markdown("## Phân tích tương quan các yếu tố")
+
+        # Tổng hợp thông tin về các yếu tố tương quan
+        corr_variables = 0
+        price_range = 0
+
+        # Đếm số cột số có thể dùng trong tương quan
+        for col in data.columns:
+            if pd.api.types.is_numeric_dtype(data[col]):
+                corr_variables += 1
+
+        # Tính giá cao nhất và thấp nhất (không tính ngoại lệ)
+        if price_column in data.columns:
+            price_range = data[data[price_column] < data[price_column].quantile(0.99)][price_column].max() - \
+                          data[data[price_column] > data[price_column].quantile(0.01)][price_column].min()
+
+        # Hiển thị thống kê trong grid
+        st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="data-grid">
+            <div class="stat-card">
+                <div class="stat-value">{:,d}</div>
+                <div class="stat-label">Số biến số liên tục</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,.0f}</div>
+                <div class="stat-label">Khoảng giá (triệu VNĐ)</div>
+            </div>
+        </div>
+        """.format(corr_variables, price_range), unsafe_allow_html=True)
+
+        # Kiểm tra cột diện tích
+        area_column = 'area' if 'area' in data.columns else None
+        if area_column is None:
+            for col in ['dien_tich', 'area_m2', 'square_meters', 'dientich']:
+                if col in data.columns:
+                    area_column = col
+                    break
+
+        if area_column is None:
+            # Tìm cột số khác nếu không có area
+            for col in data.columns:
+                if col != price_column and pd.api.types.is_numeric_dtype(data[col]):
+                    area_column = col
+                    st.warning(f"Đang sử dụng cột '{area_column}' làm dữ liệu thay thế cho diện tích.")
+                    break
+
+        if area_column is None and len(data.columns) > 1:
+            # Sử dụng cột đầu tiên khác với giá
+            for col in data.columns:
+                if col != price_column:
+                    area_column = col
+                    st.warning(f"Đang sử dụng cột '{area_column}' làm dữ liệu thay thế cho diện tích.")
+                    break
+
+        if area_column is None:
+            st.error("Không đủ dữ liệu để vẽ biểu đồ tương quan.")
+        else:
+            # Lọc dữ liệu trong khoảng hợp lý để biểu đồ đẹp hơn
+            filtered_data = data[data[price_column] < data[price_column].quantile(0.99)]
+            filtered_data = filtered_data[filtered_data[area_column] < filtered_data[area_column].quantile(0.99)]
+
+            # Card 1: Tương quan giữa diện tích và giá
+            st.markdown("""
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="6" cy="6" r="3"></circle>
+                            <circle cx="18" cy="18" r="3"></circle>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div class="chart-title-container">
+                        <div class="chart-title">Tương quan giữa diện tích và giá</div>
+                        <div class="chart-desc">Phân tích mối quan hệ giữa diện tích và giá của BĐS theo khu vực</div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Vẽ biểu đồ scatter plot
+            fig5 = px.scatter(filtered_data, x=area_column, y=price_column,
+                          labels={area_column:'Diện tích (m²)', price_column:'Giá (triệu VNĐ)'},
+                          opacity=0.6,
+                          color=location_column if location_column in filtered_data.columns else None,
+                          size_max=10,
+                          height=500)
+
+            # Cập nhật layout của biểu đồ
+            fig5.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                font=dict(color='white'),
+                margin=dict(t=0, b=0, l=0, r=0),
+                legend=dict(font=dict(color='white')),
+            )
+            fig5.update_xaxes(tickfont=dict(color='white'), gridcolor='rgba(255,255,255,0.1)')
+            fig5.update_yaxes(tickfont=dict(color='white'), gridcolor='rgba(255,255,255,0.1)')
+
+            with st.container():
+                st.plotly_chart(fig5, use_container_width=True)
+
+            # Tương quan giữa các biến số
+            # Chọn các biến số liên tục để tính tương quan
+            numerical_columns = []
+            possible_numerical_features = [
+                price_column, area_column,
+                'bedrooms', 'bathrooms', 'floor', 'floors',
+                'rooms', 'so_phong', 'so_tang', 'phong_ngu', 'phong_tam'
+            ]
+
+            # Thêm một danh sách các cột số đã biết
+            known_numerical_columns = set(possible_numerical_features)
+
+            # Tìm tất cả các cột số trong dữ liệu
+            for col in filtered_data.columns:
+                if col in known_numerical_columns or pd.api.types.is_numeric_dtype(filtered_data[col]):
+                    if col not in numerical_columns:  # Tránh trùng lắp
+                        numerical_columns.append(col)
+
+            if len(numerical_columns) >= 2:
+                # Lấy tối đa 5 cột số để ma trận tương quan đơn giản
+                numerical_columns = numerical_columns[:5]
+
+                try:
+                    corr_data = filtered_data[numerical_columns].corr()
+
+                    # Card 2: Ma trận tương quan
+                    st.markdown("""
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                            </div>
+                            <div class="chart-title-container">
+                                <div class="chart-title">Ma trận tương quan giữa các yếu tố</div>
+                                <div class="chart-desc">Phân tích mức độ tương quan giữa các yếu tố chính</div>
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    # Vẽ ma trận tương quan
+                    fig6 = px.imshow(corr_data,
+                               text_auto=True,
+                               color_continuous_scale='RdBu_r')
+
+                    # Cập nhật layout của biểu đồ
+                    fig6.update_layout(
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
+                        margin=dict(t=0, b=0, l=0, r=0),
+                        coloraxis_colorbar=dict(tickfont=dict(color='white'))
+                    )
+                    fig6.update_xaxes(tickfont=dict(color='white'))
+                    fig6.update_yaxes(tickfont=dict(color='white'))
+
+                    with st.container():
+                        st.plotly_chart(fig6, use_container_width=True)
+                except Exception as e:
+                    st.error(f"Không thể tạo ma trận tương quan: {str(e)}")
+            else:
+                st.warning("Không đủ dữ liệu số để tạo ma trận tương quan.")
+
 # MARK: - Chế độ Về dự án
-else:
+elif app_mode == "Về dự án":
     # Khối header với logo và tiêu đề
     st.markdown("""
     <div class="about-header">
@@ -1071,9 +1529,8 @@ else:
                 <li><strong>Đặc điểm:</strong> Diện tích, Số phòng, Số tầng</li>
                 <li><strong>Phân loại:</strong> Loại bất động sản, Hướng nhà</li>
                 <li><strong>Giá trị:</strong> Giá/m²</li>
-
-            <p>Dữ liệu được thu thập và làm sạch, sau đó được sử dụng để huấn luyện mô hình dự đoán giá bất động sản chính xác.</p>
         </div>
+        <p>Dữ liệu được thu thập và làm sạch, sau đó được sử dụng để huấn luyện mô hình dự đoán giá bất động sản chính xác.</p>
     </div>
     """
 
@@ -1109,20 +1566,6 @@ else:
                 <li>
                     <strong>Huấn luyện mô hình</strong>:
                     <p>Sử dụng Gradient Boosted Trees và các thuật toán học máy tiên tiến</p>
-                </li>
-                <li>
-                    <strong>Đánh giá mô hình</strong>:
-                    <p>Phân tích hiệu suất mô hình dựa trên các một số thước đo</p>
-                    <div style="display: flex; margin-top: 10px; gap: 20px;">
-                        <div style="background: rgba(76, 154, 255, 0.15); padding: 10px 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 5px;">R² Score</div>
-                            <div style="font-size: 1.2rem; font-weight: bold; color: #4c9aff;">{r2_score_formatted}</div>
-                        </div>
-                        <div style="background: rgba(76, 154, 255, 0.15); padding: 10px 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 5px;">RMSE</div>
-                            <div style="font-size: 1.2rem; font-weight: bold; color: #4c9aff;">{rmse_formatted}</div>
-                        </div>
-                    </div>
                 </li>
             </ol>
         </div>

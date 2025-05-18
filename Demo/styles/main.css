@@ -33,7 +33,7 @@ h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, button, input, optgroup, select, t
 /* Sidebar header styling */
 .sidebar-header {
     background: linear-gradient(to right, #2c5282, #1a365d);
-    padding: 1.5rem 1rem;
+    padding: 1rem;
     text-align: center;
     margin-bottom: 1.6rem;
     border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -48,7 +48,7 @@ h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, button, input, optgroup, select, t
 .sidebar-header h2 {
     color: white;
     margin: 0;
-    font-size: 1.3rem;
+    font-size: 1rem;
 }
 
 .sidebar-header p {
@@ -94,24 +94,176 @@ h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, button, input, optgroup, select, t
     color: white !important;
 }
 
-/* MARK: - Sidebar Buttons & Form Controls */
-/* Custom sidebar buttons */
-[data-testid="stSidebar"] button {
+/* MARK: - Tabs Styling */
+.stTabs [data-baseweb="tab-list"] {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 38px;
+    white-space: pre-wrap;
+    background-color: rgba(45, 55, 72, 0.4) !important;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0 18px;
+    font-weight: 500;
+    font-size: 14px;
+    color: white !important;
+    transition: all 0.2s ease;
+    position: relative;
+    margin: 0 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background-color: rgba(45, 55, 72, 0.7) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.stTabs [aria-selected="true"] {
     background-color: #2d3748 !important;
     color: white !important;
-    border: none !important;
+    font-weight: 600 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
 }
 
-[data-testid="stSidebar"] button:hover {
-    background-color: #4A5568 !important;
+/* Header styling for statistics page */
+.modern-header {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to right, #2c5282, #1a365d);
+    padding: 32px 24px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(44, 82, 130, 0.15);
+    position: relative;
+    overflow: hidden;
 }
 
-/* Custom selectbox in sidebar */
-[data-testid="stSidebar"] .stSelectbox {
-    margin-bottom: 0.5rem;
+.header-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
-[data-testid="stSidebar"] .stSelectbox > div > div {
+.header-icon {
+    background: rgba(255, 255, 255, 0.15);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.header-text {
+    font-size: 28px;
+    color: white;
+    font-weight: 700;
+}
+
+.header-desc {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    max-width: 85%;
+    line-height: 1.6;
+}
+
+/* MARK: - Chart container styling */
+.chart-card {
+    background: #1E293B;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 40px;
+    transition: all 0.3s ease;
+}
+
+.chart-header {
+    display: flex;
+    align-items: flex-start;
+}
+
+.chart-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.chart-icon svg {
+    stroke: #60a5fa;
+}
+
+.chart-title-container {
+    flex: 1;
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 6px;
+}
+
+.chart-desc {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0;
+    line-height: 1.4;
+}
+
+.data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+    .data-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* MARK: - Sidebar Buttons & Form Controls */
+[data-testid="stSidebar"] button {
     background-color: #2d3748 !important;
     color: white !important;
     border: none !important;
@@ -232,7 +384,7 @@ div[data-testid="stMetricLabel"] {
 /* MARK: - Navigation Buttons */
 .nav-button {
     width: 100% !important;
-    text-align: left !important;
+    text-align: center !important;
     padding: 0.6rem 0.5rem !important;
     margin: 0.25rem 0 !important;
     border-radius: 0.5rem !important;
@@ -240,7 +392,7 @@ div[data-testid="stMetricLabel"] {
 
 button[kind="secondary"], button[kind="primary"] {
     width: 100% !important;
-    text-align: left !important;
+    text-align: center !important;
     display: flex !important;
     align-items: center !important;
     padding: 0.6rem 0.5rem !important;
@@ -250,7 +402,7 @@ button[kind="secondary"], button[kind="primary"] {
 
 button[kind="secondary"] p, button[kind="primary"] p {
     width: 100% !important;
-    text-align: left !important;
+    text-align: center !important;
     margin: 0 !important;
     padding: 0 !important;
 }
@@ -261,7 +413,7 @@ button[kind="secondary"] p, button[kind="primary"] p {
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    text-align: left !important;
+    text-align: center !important;
     padding: 0.6rem 0.5rem !important;
     margin: 0.25rem 0 !important;
     border-radius: 0.5rem !important;
@@ -305,7 +457,7 @@ button[kind="primary"] p:last-child, button[kind="secondary"] p:last-child {
 /* Specific styling for buttons in vertical blocks */
 div[data-testid="stVerticalBlock"] button {
     width: 100% !important;
-    text-align: left !important;
+    text-align: center !important;
     padding: 0.6rem 0.5rem !important;
     margin: 0.25rem 0 !important;
     border-radius: 0.5rem !important;
@@ -321,14 +473,13 @@ div[data-testid="stVerticalBlock"] button > div:first-child {
 
 /* Target text element in button */
 div[data-testid="stVerticalBlock"] button > div:first-child > p {
-    text-align: left !important;
+    text-align: center !important;
     width: 100% !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
 }
 
 /* MARK: - Enhanced Metrics Cards */
-/* Style cho card metrics mới */
 .enhanced-metric-card {
     background: linear-gradient(145deg, rgba(44,82,130,0.5), rgba(26,54,93,0.7));
     border-radius: 10px;
@@ -470,7 +621,6 @@ div[data-testid="stVerticalBlock"] button > div:first-child > p {
 }
 
 /* MARK: - Input Cards */
-/* Input Card Styling */
 .input-card {
     background-color: #1e1e1e;
     border-radius: 10px;
@@ -566,7 +716,7 @@ div[data-testid="stVerticalBlock"] button > div:first-child > p {
 /* Ô input */
 .stNumberInput input {
     border-radius: 0 !important;
-    text-align: center !important;
+    text-align: start !important;
     padding: 0 10px !important;
     margin: 0 !important;
     height: 38px !important;
@@ -590,19 +740,8 @@ div[data-testid="stVerticalBlock"] button > div:first-child > p {
     height: 24px;
 }
 
-.spacer-20 {
-    height: 20px;
-}
-
 .hr-divider {
-    margin: 1.5rem 0;
     opacity: 0.2;
-}
-
-.info-text {
-    padding: 0 1rem;
-    color: rgba(255,255,255,0.7);
-    font-size: 0.8rem;
 }
 
 /* MARK: - Modern Header */
@@ -852,7 +991,6 @@ div button[kind="tertiary"]:focus {
 }
 
 .about-card:hover {
-    transform: translateY(-5px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
     border-color: rgba(76, 154, 255, 0.4);
 }
@@ -903,6 +1041,29 @@ div button[kind="tertiary"]:focus {
     font-size: 0.9rem;
     border: 1px solid rgba(76, 154, 255, 0.3);
 }
+
+.team-member {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.team-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #4c9aff, #63dfdf);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 1rem;
+    font-weight: bold;
+    color: white;
+}
+
 
 .team-member {
     display: flex;
