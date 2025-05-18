@@ -60,6 +60,8 @@ if not load_css(css_path):
     </style>
     """, unsafe_allow_html=True)
 
+
+
 # MARK: - Khởi tạo phiên Spark
 @st.cache_resource
 def get_spark_session():
@@ -776,13 +778,81 @@ if app_mode == "Dự đoán giá":
 # CHẾ ĐỘ 2: PHÂN TÍCH DỮ LIỆU
 # MARK: - Chế độ Phân tích dữ liệu
 elif app_mode == "Phân tích dữ liệu":
-    st.markdown("<h1 class='left-aligned-title'>📊 Phân tích dữ liệu bất động sản Việt Nam</h1>", unsafe_allow_html=True)
+    # Tiêu đề trang
+    statistics_header = """
+    <div class="modern-header">
+        <div class="header-title">
+            <div class="header-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                    <line x1="2" y1="20" x2="22" y2="20"></line>
+                </svg>
+            </div>
+            <div class="header-text">Phân tích dữ liệu</div>
+        </div>
+        <div class="header-desc">
+            Phân tích dữ liệu bất động sản tại Việt Nam
+        </div>
+    </div>
+    """
+    st.markdown(statistics_header, unsafe_allow_html=True)
 
     # Tạo tabs để phân chia nội dung
-    tab1, tab2, tab3 = st.tabs(["📈 Phân phối giá", "📍 Phân tích vị trí", "🏠 Đặc điểm bất động sản"])
+    tab1, tab2, tab3 = st.tabs(["Phân phối giá", "Phân tích vị trí", "Đặc điểm bất động sản"])
 
     with tab1:
-        st.subheader("Phân tích phân phối giá bất động sản")
+        st.markdown("## Phân tích phân phối giá bất động sản")
+
+        # Thông tin thống kê tổng quan
+        avg_price = data["price_per_m2"].mean()
+        max_price = data["price_per_m2"].max()
+        min_price = data["price_per_m2"].min()
+        median_price = data["price_per_m2"].median()
+
+        # Hiển thị thống kê tổng quan trong grid
+        st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="data-grid">
+            <div class="stat-card">
+                <div class="stat-value">{:,.0f}</div>
+                <div class="stat-label">Giá trung bình/m²</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,.0f}</div>
+                <div class="stat-label">Giá trung vị/m²</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,.0f}</div>
+                <div class="stat-label">Giá cao nhất/m²</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,d}</div>
+                <div class="stat-label">Tổng số BĐS</div>
+            </div>
+        </div>
+        """.format(avg_price, median_price, max_price, len(data)), unsafe_allow_html=True)
+
+        # Card 1: Biểu đồ phân phối giá
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18"></path>
+                        <path d="M18 12h-2"></path>
+                        <path d="M13 8h-2"></path>
+                        <path d="M8 16H6"></path>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Phân phối giá bất động sản</div>
+                    <div class="chart-desc">So sánh phân phối giá gốc và phân phối giá sau biến đổi logarit</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Vẽ biểu đồ phân phối giá
         fig, ax = plt.subplots(1, 2, figsize=(14, 6))
@@ -802,10 +872,29 @@ elif app_mode == "Phân tích dữ liệu":
         plt.tight_layout()
         st.pyplot(fig)
 
-        # Tương tác: Lọc theo khoảng giá
-        st.subheader("Lọc dữ liệu theo khoảng giá")
+        # Thêm khoảng trống
+        st.markdown('<div style="height: 30px;"></div>', unsafe_allow_html=True)
 
-        # Tạo slider chọn khoảng giá
+        # Card 2: Lọc theo khoảng giá
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Lọc dữ liệu theo khoảng giá</div>
+                    <div class="chart-desc">Tìm kiếm bất động sản trong khoảng giá mong muốn</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
         price_range = st.slider(
             "Chọn khoảng giá (VND/m²)",
             min_value=float(data["price_per_m2"].min()),
@@ -813,26 +902,141 @@ elif app_mode == "Phân tích dữ liệu":
             value=(float(data["price_per_m2"].quantile(0.25)), float(data["price_per_m2"].quantile(0.75)))
         )
 
+        # Thêm khoảng trống sau slider
+        st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+
         # Lọc dữ liệu theo khoảng giá đã chọn
         filtered_data = data[(data["price_per_m2"] >= price_range[0]) & (data["price_per_m2"] <= price_range[1])]
 
-        # Hiển thị thông tin về dữ liệu đã lọc
+        # Tính toán phần trăm
+        total_count = len(data)
+        filtered_count = len(filtered_data)
+        percentage = (filtered_count / total_count) * 100 if total_count > 0 else 0
+
+        # Thêm khoảng trống trước thông báo tìm kiếm
+        st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
+
+        # Hiển thị kết quả tìm kiếm
+        st.markdown(f"""
+        <div style="display: flex; align-items: center; background-color: #1E293B; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-left: 4px solid #4C9AFF;">
+            <div style="background-color: rgba(76, 154, 255, 0.15); width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 16px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4C9AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <div>
+                <div style="font-size: 16px; font-weight: 500; color: #E2E8F0; margin-bottom: 5px;">
+                    Đã tìm thấy <span style="font-weight: 700; color: #4C9AFF;">{filtered_count:,}</span> bất động sản
+                </div>
+                <div style="font-size: 13px; color: #94A3B8;">
+                    Trong khoảng giá đã chọn • Chiếm <span style="font-weight: 600; color: #A5B4FC;">{int(percentage)}%</span> tổng số dữ liệu
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Thêm khoảng trống sau thông báo
+        st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
+
+        # Hiển thị thông tin về dữ liệu đã lọc trong một dòng
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Số lượng BĐS", f"{len(filtered_data)}")
+            st.markdown(f"""
+            <div class="stat-card" style="margin: 0 0 30px 0; width: 100%;">
+                <div class="stat-value">{len(filtered_data):,}</div>
+                <div class="stat-label">Số lượng BĐS</div>
+            </div>
+            """, unsafe_allow_html=True)
         with col2:
-            st.metric("Giá trung bình/m²", f"{filtered_data['price_per_m2'].mean():,.0f} VND")
+            st.markdown(f"""
+            <div class="stat-card" style="margin: 0 0 30px 0; width: 100%;">
+                <div class="stat-value">{filtered_data['price_per_m2'].mean():,.0f}</div>
+                <div class="stat-label">Giá trung bình/m² (VND)</div>
+            </div>
+            """, unsafe_allow_html=True)
         with col3:
-            st.metric("Diện tích trung bình", f"{filtered_data['area_m2'].mean():.1f} m²")
+            st.markdown(f"""
+            <div class="stat-card" style="margin: 0 0 30px 0; width: 100%;">
+                <div class="stat-value">{filtered_data['area_m2'].mean():.1f}</div>
+                <div class="stat-label">Diện tích trung bình (m²)</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        # Hiển thị dữ liệu đã lọc
-        st.dataframe(filtered_data[["city_province", "district", "area_m2", "price_per_m2", "category"]].head(10))
+        # Hiển thị dữ liệu đã lọc với card
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Dữ liệu bất động sản đã lọc</div>
+                    <div class="chart-desc">Danh sách 10 bất động sản đầu tiên trong khoảng giá đã chọn</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.dataframe(filtered_data[["city_province", "district", "area_m2", "price_per_m2", "category"]].head(10), use_container_width=True)
 
     with tab2:
-        st.subheader("Phân tích giá theo vị trí địa lý")
+        st.markdown("## Phân tích giá theo vị trí địa lý")
 
-        # Phân tích giá trung bình theo tỉnh/thành phố
-        st.markdown("#### Giá trung bình theo tỉnh/thành phố")
+        # Tổng hợp thông tin theo khu vực
+        total_provinces = data["city_province"].nunique()
+        total_districts = data["district"].nunique()
+        top_province = data["city_province"].value_counts().index[0]
+        top_district = data["district"].value_counts().index[0]
+
+        # Hiển thị thống kê tổng quan trong grid
+        st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="data-grid">
+            <div class="stat-card">
+                <div class="stat-value">{:,d}</div>
+                <div class="stat-label">Tổng số tỉnh/TP</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:,d}</div>
+                <div class="stat-label">Tổng số quận/huyện</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{}</div>
+                <div class="stat-label">Khu vực phổ biến nhất</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{}</div>
+                <div class="stat-label">Quận/huyện phổ biến nhất</div>
+            </div>
+        </div>
+        """.format(total_provinces, total_districts, top_province, top_district), unsafe_allow_html=True)
+
+        # Card 1: Giá trung bình theo tỉnh/thành phố
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="3" height="10"></rect>
+                        <rect x="8" y="5" width="3" height="12"></rect>
+                        <rect x="14" y="3" width="3" height="14"></rect>
+                        <rect x="20" y="9" width="3" height="8"></rect>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Giá trung bình theo tỉnh/thành phố</div>
+                    <div class="chart-desc">Top 10 tỉnh/thành phố có giá bất động sản cao nhất</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Tính giá trung bình theo tỉnh/thành phố
         city_price = data.groupby("city_province")["price_per_m2"].mean().sort_values(ascending=False).reset_index()
@@ -843,13 +1047,38 @@ elif app_mode == "Phân tích dữ liệu":
             city_price.head(10),
             x="Tỉnh/Thành phố",
             y="Giá trung bình/m²",
-            title="Top 10 tỉnh/thành phố có giá bất động sản cao nhất",
+            color="Giá trung bình/m²",
+            color_continuous_scale='Viridis',
             template="plotly_white"
+        )
+
+        # Cập nhật layout của biểu đồ
+        fig.update_layout(
+            margin=dict(t=0, b=0, l=0, r=0),
+            coloraxis_colorbar=dict(tickfont=dict(color='#333333'))
         )
         st.plotly_chart(fig, use_container_width=True)
 
-        # Phân tích giá theo quận/huyện trong một tỉnh/thành phố đã chọn
-        st.markdown("#### Giá trung bình theo quận/huyện")
+        # Thêm khoảng trống
+        st.markdown('<div style="height: 30px;"></div>', unsafe_allow_html=True)
+
+        # Card 2: Giá trung bình theo quận/huyện
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                        <circle cx="12" cy="12" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Giá trung bình theo quận/huyện</div>
+                    <div class="chart-desc">Phân tích chi tiết theo khu vực đã chọn</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Chọn tỉnh/thành phố để xem chi tiết
         selected_city = st.selectbox("Chọn tỉnh/thành phố", sorted(data["city_province"].unique()))
@@ -866,42 +1095,130 @@ elif app_mode == "Phân tích dữ liệu":
             district_price,
             x="Quận/Huyện",
             y="Giá trung bình/m²",
-            title=f"Giá bất động sản trung bình theo quận/huyện tại {selected_city}",
+            color="Giá trung bình/m²",
+            color_continuous_scale='Viridis',
             template="plotly_white"
+        )
+
+        # Cập nhật layout của biểu đồ
+        fig.update_layout(
+            margin=dict(t=0, b=0, l=0, r=0),
+            coloraxis_colorbar=dict(tickfont=dict(color='#333333'))
         )
         st.plotly_chart(fig, use_container_width=True)
 
     with tab3:
-        st.subheader("Phân tích mối quan hệ giữa đặc điểm và giá")
+        st.markdown("## Phân tích mối quan hệ giữa đặc điểm và giá")
 
-        # Biểu đồ phân tán: Diện tích vs. Giá
-        st.markdown("#### Mối quan hệ giữa diện tích và giá")
+        # Thống kê tổng quan về đặc điểm bất động sản
+        avg_area = data["area_m2"].mean()
+        avg_bedroom = data["bedroom_num"].mean()
+        price_area_corr = data[["price_per_m2", "area_m2"]].corr().iloc[0, 1]
+        numeric_features_count = len([col for col in data.columns if pd.api.types.is_numeric_dtype(data[col])])
+
+        # Hiển thị thống kê tổng quan trong grid
+        st.markdown('<div style="height: 15px;"></div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="data-grid">
+            <div class="stat-card">
+                <div class="stat-value">{:.1f}</div>
+                <div class="stat-label">Diện tích trung bình (m²)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:.1f}</div>
+                <div class="stat-label">Số phòng ngủ trung bình</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:.2f}</div>
+                <div class="stat-label">Tương quan giá-diện tích</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{:d}</div>
+                <div class="stat-label">Số đặc trưng số</div>
+            </div>
+        </div>
+        """.format(avg_area, avg_bedroom, price_area_corr, numeric_features_count), unsafe_allow_html=True)
+
+        # Card 1: Tương quan giữa diện tích và giá
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="6" cy="6" r="3"></circle>
+                        <circle cx="18" cy="18" r="3"></circle>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Mối quan hệ giữa diện tích và giá</div>
+                    <div class="chart-desc">Phân tích sự tương quan giữa diện tích và giá theo khu vực và số phòng ngủ</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Tạo mẫu nhỏ hơn nếu có quá nhiều dữ liệu
         sample_size = min(1000, len(data))
-        sampled_data = data.sample(sample_size, random_state=42)
+        sampled_data = data.sample(n=sample_size, random_state=42)
 
-        # Vẽ biểu đồ phân tán
+        # Tạo bản sao và thêm cột size_value để đảm bảo giá trị không âm cho thuộc tính size
+        plot_data = sampled_data.copy()
+        # Chuyển đổi giá trị âm thành 1 và đảm bảo tất cả các giá trị đều > 0
+        plot_data['size_value'] = plot_data['bedroom_num'].apply(lambda x: max(1, x) if pd.notna(x) else 1)
+
+        # Lọc dữ liệu trong khoảng hợp lý để biểu đồ đẹp hơn
+        filtered_data = plot_data[
+            (plot_data["price_per_m2"] < plot_data["price_per_m2"].quantile(0.99)) &
+            (plot_data["area_m2"] < plot_data["area_m2"].quantile(0.99))
+        ]
+
+        # Vẽ biểu đồ phân tán với size_value
         fig = px.scatter(
-            sampled_data,
+            filtered_data,
             x="area_m2",
             y="price_per_m2",
             color="city_province",
-            size="bedroom_num",
-            hover_data=["district", "category"],
-            title="Mối quan hệ giữa diện tích và giá",
+            size="size_value",  # Sử dụng cột size_value mới thay vì bedroom_num
+            hover_data=["district", "category", "bedroom_num"],  # Vẫn hiển thị bedroom_num trong hover
             labels={
                 "area_m2": "Diện tích (m²)",
                 "price_per_m2": "Giá/m² (VND)",
                 "city_province": "Tỉnh/Thành phố",
                 "bedroom_num": "Số phòng ngủ"
-            },
-            template="plotly_white"
+            }
+        )
+
+        # Cập nhật layout của biểu đồ
+        fig.update_layout(
+            margin=dict(t=0, b=0, l=0, r=0),
+            coloraxis_colorbar=dict(tickfont=dict(color='#333333'))
         )
         st.plotly_chart(fig, use_container_width=True)
 
-        # Ma trận tương quan
-        st.markdown("#### Ma trận tương quan giữa các đặc điểm số")
+        # Thêm khoảng trống
+        st.markdown('<div style="height: 30px;"></div>', unsafe_allow_html=True)
+
+        # Card 2: Ma trận tương quan
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="3" y1="15" x2="21" y2="15"></line>
+                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                        <line x1="15" y1="3" x2="15" y2="21"></line>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Ma trận tương quan giữa các đặc điểm</div>
+                    <div class="chart-desc">Phân tích mối tương quan giữa các đặc trưng số trong dữ liệu</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Chọn các đặc trưng số để tính tương quan
         numeric_features = ["area_m2", "bedroom_num", "floor_num", "toilet_num", "livingroom_num", "street_width_m", "price_per_m2"]
@@ -913,8 +1230,27 @@ elif app_mode == "Phân tích dữ liệu":
         plt.title("Ma trận tương quan giữa các đặc điểm")
         st.pyplot(fig)
 
-        # Phân tích theo đặc điểm bất động sản
-        st.markdown("#### Phân tích giá theo đặc điểm")
+        # Thêm khoảng trống
+        st.markdown('<div style="height: 30px;"></div>', unsafe_allow_html=True)
+
+        # Card 3: Phân tích theo đặc điểm
+        st.markdown("""
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                </div>
+                <div class="chart-title-container">
+                    <div class="chart-title">Phân tích giá theo đặc điểm</div>
+                    <div class="chart-desc">So sánh giá trung bình theo các đặc điểm khác nhau của BĐS</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Chọn đặc điểm để phân tích
         feature = st.selectbox(
@@ -943,8 +1279,15 @@ elif app_mode == "Phân tích dữ liệu":
             feature_price,
             x=feature,
             y="Giá trung bình/m²",
-            title=f"Giá trung bình theo {feature}",
+            color="Giá trung bình/m²",
+            color_continuous_scale='Viridis',
             template="plotly_white"
+        )
+
+        # Cập nhật layout của biểu đồ
+        fig.update_layout(
+            margin=dict(t=0, b=0, l=0, r=0),
+            coloraxis_colorbar=dict(tickfont=dict(color='#333333'))
         )
         st.plotly_chart(fig, use_container_width=True)
 

@@ -1086,3 +1086,47 @@ div button[kind="tertiary"]:focus {
     font-weight: bold;
     color: white;
 }
+/* CSS cho dòng thống kê */
+.stats-row {
+    display: flex;
+    justify-content: space-between;
+    background-color: #1e293b;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #334155;
+}
+
+.stat-item {
+    flex: 1;
+    text-align: center;
+    padding: 5px 10px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item:last-child {
+    border-right: none;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4c9aff;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Slider label style */
+.slider-label {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #e2e8f0;
+}
