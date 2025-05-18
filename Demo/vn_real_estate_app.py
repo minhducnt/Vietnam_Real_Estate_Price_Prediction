@@ -31,207 +31,34 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CSS tùy chỉnh để tạo giao diện hiện đại
-st.markdown('''
-<style>
-    /* Import Literata font with Vietnamese support */
-    @import url('https://fonts.googleapis.com/css2?family=Literata:wght@200;300;400;500;600;700;800;900&display=swap&subset=latin,latin-ext,vietnamese');
+# Load CSS từ file riêng biệt để tạo giao diện hiện đại
+def load_css(css_file):
+    try:
+        with open(css_file, 'r', encoding='utf-8') as f:
+            css = f.read()
+        st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
+        print(f"Loaded CSS successfully from {css_file}")
+        return True
+    except Exception as e:
+        print(f"Error loading CSS: {e}")
+        return False
 
-    /* Main content area styling */
-    .main {
-        background-color: #f8f9fa;
-        margin-left: 250px;
-        padding: 1rem 2rem;
-    }
-
-    /* Global font styling */
-    .stApp {
-        font-family: 'Literata', serif;
-    }
-
-    /* Text elements styling */
-    h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, button, input, optgroup, select, textarea {
-        font-family: 'Literata', serif !important;
-    }
-
-    /* Custom dark sidebar styling */
-    [data-testid="stSidebar"] {
-        background-color: #1a202c;
-        padding-top: 0;
-        min-width: 280px !important;
-        max-width: 280px !important;
-    }
-
-    [data-testid="stSidebar"] .css-6qob1r {
-        background-color: #1a202c;
-    }
-
-    /* Sidebar header styling */
-    .sidebar-header {
-        background: linear-gradient(to right, #2c5282, #1a365d);
-        padding: 1.5rem 1rem;
-        text-align: center;
-        margin-bottom: 1.6rem;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        border-radius: 0.8rem;
-    }
-
-    .sidebar-header img {
-        max-width: 40px;
-        margin-bottom: 0.5rem;
-    }
-
-    /* Sidebar navigation styling */
-    .nav-link {
-        display: block;
-        padding: 0.75rem 1rem;
-        margin: 0.25rem 0.75rem;
-        border-radius: 0.5rem;
-        text-decoration: none;
-        color: white !important;
-        transition: all 0.2s ease;
-    }
-
-    .nav-link:hover {
-        background-color: rgba(255,255,255,0.1);
-    }
-
-    .nav-link.active {
-        background-color: #4c9aff;
-        color: white !important;
-        font-weight: 600;
-    }
-
-    /* Sidebar text color */
-    [data-testid="stSidebar"] .css-eczf16,
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] h4,
-    [data-testid="stSidebar"] h5,
-    [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] div,
-    [data-testid="stSidebar"] span,
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] .stSelectbox label {
-        color: white !important;
-    }
-
-    /* Custom sidebar buttons */
-    [data-testid="stSidebar"] button {
-        background-color: #2d3748 !important;
-        color: white !important;
-        border: none !important;
-    }
-
-    [data-testid="stSidebar"] button:hover {
-        background-color: #4A5568 !important;
-    }
-
-    /* Custom selectbox in sidebar */
-    [data-testid="stSidebar"] .stSelectbox {
-        margin-bottom: 0.5rem;
-    }
-
-    [data-testid="stSidebar"] .stSelectbox > div > div {
-        background-color: #2d3748 !important;
-        color: white !important;
-        border: none !important;
-    }
-
-    /* Metrics styling */
-    [data-testid="stMetricValue"] {
-        color: #4c9aff !important;
-        font-weight: bold !important;
-    }
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: #f1f3f4;
-        border-radius: 5px 5px 0px 0px;
-        gap: 1px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #4c9aff;
-        color: white;
-    }
-    .stButton>button {
-        background-color: #4c9aff;
-        color: white;
-        border-radius: 5px;
-        border: none;
-        padding: 10px 20px;
-        font-weight: 500;
-    }
-    .stButton>button:hover {
-        background-color: #3d7ecc;
-        color: white;
-    }
-    div[data-testid="stMetricValue"] {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-    div[data-testid="stMetricLabel"] {
-        font-size: 1rem;
-    }
-
-    /* Sidebar metrics styling */
-    .sidebar-metric {
-        background-color: rgba(255,255,255,0.05);
-        border-radius: 0.5rem;
-        padding: 0.75rem;
-        margin: 0.5rem 0;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .sidebar-section {
-        padding: 0.5rem 1rem 1rem 1rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .sidebar-section-title {
-        font-weight: 600;
-        font-size: 1rem;
-        margin-bottom: 0.75rem;
-        color: rgba(255,255,255,0.8);
-        display: flex;
-        align-items: center;
-    }
-
-    .sidebar-section-title svg {
-        margin-right: 0.5rem;
-    }
-
-    /* Left-aligned title styling */
-    .left-aligned-title {
-        text-align: left !important;
-        display: flex !important;
-        align-items: center !important;
-        font-size: 2rem !important;
-        font-weight: 700 !important;
-        margin-bottom: 1rem !important;
-        line-height: 2.4rem !important;
-    }
-
-    .left-aligned-title span {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        line-height: normal !important;
-    }
-
-    .left-aligned-title span:first-child {
-        margin-right: 12px !important;
-    }
-</style>
-''', unsafe_allow_html=True)
-
-# Không cần hiển thị logo riêng vì sẽ được thêm vào sidebar
+# Load CSS từ file riêng biệt
+css_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'styles', 'main.css')
+if not load_css(css_path):
+    st.error(f"Failed to load CSS from {css_path}. UI may not display correctly.")
+    st.markdown("""
+    <style>
+    .sidebar-header {background: linear-gradient(to right, #2c5282, #1a365d); padding: 1.5rem 1rem; text-align: center; margin-bottom: 1.6rem; border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 0.8rem;}
+    .sidebar-header h2 {color: white; margin: 0; font-size: 1.3rem;}
+    .sidebar-header p {color: rgba(255,255,255,0.7); margin: 0; font-size: 0.8rem;}
+    .sidebar-header img {max-width: 40px; margin-bottom: 0.5rem;}
+    .enhanced-metric-card {border-radius: 10px; padding: 0.75rem; margin: 0.5rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s ease;}
+    .blue-gradient {background: linear-gradient(145deg, rgba(51,97,255,0.3), rgba(29,55,147,0.5)); border-color: rgba(100,149,237,0.3);}
+    .purple-gradient {background: linear-gradient(145deg, rgba(139,92,246,0.3), rgba(76,29,149,0.5)); border-color: rgba(167,139,250,0.3);}
+    .green-gradient {background: linear-gradient(145deg, rgba(44,130,96,0.5), rgba(26,93,59,0.7)); border-color: rgba(76,255,154,0.3);}
+    </style>
+    """, unsafe_allow_html=True)
 
 # MARK: - Khởi tạo phiên Spark
 @st.cache_resource
@@ -305,7 +132,7 @@ def preprocess_data(data):
 
     return df
 
-# MARK: - Chuyển đổi dữ liệu pandas sang spark
+# MARK: - Chuyển đổi Spark
 @st.cache_resource
 def convert_to_spark(data):
     """Chuyển đổi DataFrame pandas sang DataFrame Spark."""
@@ -328,11 +155,10 @@ def train_model(data):
     if 'street (m)' in data.columns and 'street_width_m' not in data.columns:
         data['street_width_m'] = data['street (m)'].copy()
 
-    # Chuyển đổi dữ liệu pandas sang Spark
+    # Chuyển đổi sang Spark
     data_spark = convert_to_spark(data)
 
     # Định nghĩa các cột để sử dụng trong mô hình
-    # Sử dụng tên cột cố định dựa trên biến FEATURE_COLUMNS
     area_column = FEATURE_COLUMNS['area']  # 'area (m2)'
     street_column = FEATURE_COLUMNS['street']  # 'street (m)'
 
@@ -542,7 +368,7 @@ def run_ngrok():
     else:
         st.sidebar.info("ℹ️ Nhập Ngrok Authtoken để tạo URL public. Bạn có thể lấy token miễn phí tại [ngrok.com](https://ngrok.com).")
 
-# MARK: - Main Application Flow
+# MARK: - Main App Flow
 # Tải dữ liệu
 data = load_data()
 
@@ -571,20 +397,12 @@ else:
     st.stop()
 
 # MARK: - Sidebar
-# Tạo container để ẩn padding mặc định của sidebar
-st.sidebar.markdown("""
-<style>
-    [data-testid="stSidebarUserContent"] > div:first-child {padding-top: 0rem;}
-    [data-testid="stVerticalBlock"] {gap: 0.5rem;}
-</style>
-""", unsafe_allow_html=True)
-
 # Header của sidebar với logo
 st.sidebar.markdown("""
 <div class="sidebar-header">
     <img src="https://img.icons8.com/fluency/96/000000/home.png" alt="Logo">
-    <h2 style="color: white; margin: 0; font-size: 1.3rem;">BĐS Việt Nam</h2>
-    <p style="color: rgba(255,255,255,0.7); margin: 0; font-size: 0.8rem;">AI Dự Đoán Giá</p>
+    <h2>BĐS Việt Nam</h2>
+    <p>AI Dự Đoán Giá</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -596,85 +414,12 @@ if 'app_mode' not in st.session_state:
 def set_app_mode(mode):
     st.session_state['app_mode'] = mode
 
-# CSS cho buttons
-st.markdown("""
-<style>
-    /* Navigation button styling */
-    button[kind="secondary"], button[kind="primary"] {
-        width: 100% !important;
-        text-align: left !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        padding: 0.6rem 0.5rem !important;
-        margin: 0.25rem 0 !important;
-        border-radius: 0.5rem !important;
-    }
-
-    button[kind="secondary"] p, button[kind="primary"] p {
-        width: 100% !important;
-        text-align: left !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .sidebar-nav-button {
-        width: 100%;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        text-align: left !important;
-        padding: 0.6rem 0.5rem !important;
-        margin: 0.25rem 0 !important;
-        border-radius: 0.5rem !important;
-        color: white !important;
-        background-color: rgba(44, 52, 75, 0.5) !important;
-        border: none !important;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.95rem !important;
-        line-height: 1.2;
-    }
-
-    .sidebar-nav-button:hover {
-        background-color: rgba(76, 154, 255, 0.7) !important;
-    }
-
-    .sidebar-nav-button-active {
-        background-color: #4c9aff !important;
-        color: white !important;
-        font-weight: 500 !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # Lấy mode hiện tại
 app_mode = st.session_state['app_mode']
 
 # Menu options với icons và khoảng cách
 modes = ["Dự đoán giá", "Phân tích dữ liệu", "Về dự án"]
 modes_icons = ["🏠 ", "📊 ", "ℹ️ "]
-
-# Tạo CSS để điều chỉnh style cho nút button trong Streamlit
-st.markdown("""
-<style>
-    button[kind="primary"], button[kind="secondary"] {
-        padding-left: 16px !important;
-        padding-right: 6px !important;
-    }
-
-    button[kind="primary"] p:first-child, button[kind="secondary"] p:first-child {
-        display: inline-block;
-        margin-right: 8px !important;
-        font-size: 1.2rem !important;
-    }
-
-    button[kind="primary"] p:last-child, button[kind="secondary"] p:last-child {
-        font-size: 0.95rem !important;
-        font-weight: 500;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 # Container cho menu
 menu_container = st.sidebar.container()
@@ -692,116 +437,14 @@ for i, mode in enumerate(modes):
                            type="primary" if mode == app_mode else "secondary"):
         pass
 
-    # Tạo style cho nút
-    if i < len(modes) - 1:
-        # Định nghĩa CSS chính xác hơn để nhắm đến các thành phần trong nút
-        st.markdown("""
-        <style>
-        div[data-testid="stVerticalBlock"] > div:nth-child(CHILD_INDEX) button {
-            width: 100% !important;
-            text-align: left !important;
-            padding: 0.6rem 0.5rem !important;
-            margin: 0.25rem 0 !important;
-            border-radius: 0.5rem !important;
-            font-size: 0.95rem !important;
-        }
-
-        /* Nhắm trực tiếp vào thành phần chứa văn bản trong nút */
-        div[data-testid="stVerticalBlock"] > div:nth-child(CHILD_INDEX) button > div:first-child {
-            display: flex !important;
-            justify-content: flex-start !important;
-            width: 100% !important;
-        }
-
-        /* Nhắm trực tiếp vào thành phần chứa văn bản */
-        div[data-testid="stVerticalBlock"] > div:nth-child(CHILD_INDEX) button > div:first-child > p {
-            text-align: left !important;
-            width: 100% !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-        }
-        </style>
-        """.replace("CHILD_INDEX", str(i + 1 + 6)), unsafe_allow_html=True)  # +6 vì có các đối tượng khác trước menu
-
-# Thêm CSS để nâng cao giao diện các metrics
-st.markdown("""
-<style>
-    /* Style cho card metrics mới */
-    .enhanced-metric-card {
-        background: linear-gradient(145deg, rgba(44,82,130,0.5), rgba(26,54,93,0.7));
-        border-radius: 10px;
-        padding: 0.75rem;
-        margin: 0.5rem 0;
-        border: 1px solid rgba(76,154,255,0.3);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-        height: 110px; /* Đặt chiều cao cố định cho card */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .enhanced-metric-card:hover {
-        border: 1px solid rgba(76,154,255,0.6);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-    }
-
-    .metric-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding-bottom: 0.4rem;
-    }
-
-    .metric-icon {
-        margin-right: 0.5rem;
-        background-color: rgba(76,154,255,0.2);
-        border-radius: 50%;
-        padding: 0.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .metric-title {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: rgba(255,255,255,0.9);
-    }
-
-    .metric-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #4c9aff;
-        text-align: center;
-        margin-top: 0.2rem;
-    }
-
-    .metric-description {
-        font-size: 0.7rem;
-        color: rgba(255,255,255,0.6);
-        text-align: center;
-        margin-top: 0.2rem;
-    }
-
-    .model-stats-container {
-        margin: 0.3rem 0;
-        padding: 0.3rem;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # Hiển thị thông tin mô hình trong nhóm
 st.sidebar.markdown('<div class="model-stats-container"><div class="metric-header"><div class="metric-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8.00002C20.9996 7.6493 20.9071 7.30483 20.7315 7.00119C20.556 6.69754 20.3037 6.44539 20 6.27002L13 2.27002C12.696 2.09449 12.3511 2.00208 12 2.00208C11.6489 2.00208 11.304 2.09449 11 2.27002L4 6.27002C3.69626 6.44539 3.44398 6.69754 3.26846 7.00119C3.09294 7.30483 3.00036 7.6493 3 8.00002V16C3.00036 16.3508 3.09294 16.6952 3.26846 16.9989C3.44398 17.3025 3.69626 17.5547 4 17.73L11 21.73C11.304 21.9056 11.6489 21.998 12 21.998C12.3511 21.998 12.696 21.9056 13 21.73L20 17.73C20.3037 17.5547 20.556 17.3025 20.7315 16.9989C20.9071 16.6952 20.9996 16.3508 21 16Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="metric-title">Thông số mô hình</span></div>', unsafe_allow_html=True)
 
 # Metrics độ chính xác
 st.sidebar.markdown("""
-<div class="enhanced-metric-card" style="background: linear-gradient(145deg, rgba(51,97,255,0.3), rgba(29,55,147,0.5));
-                           border-color: rgba(100,149,237,0.3); padding: 10px; margin: 5px 0;">
-    <div class="metric-header" style="display:flex; align-items:center;">
-        <div class="metric-icon" style="background-color: rgba(100,149,237,0.2); margin-right:8px; padding:5px; border-radius:6px;">
+<div class="enhanced-metric-card blue-gradient">
+    <div class="metric-header">
+        <div class="metric-icon blue-icon-bg">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M2 17L12 22L22 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -810,19 +453,18 @@ st.sidebar.markdown("""
         </div>
         <span class="metric-title">R² Score</span>
     </div>
-    <div class="metric-value" style="color: #84a9ff; font-size: 1.5rem; text-align:center; margin:5px 0;">{r2_score:.4f}</div>
+    <div class="clean-metric-value blue-value">{r2_score:.4f}</div>
 </div>
 """.format(r2_score=r2_score), unsafe_allow_html=True)
 
 # Thêm khoảng cách giữa hai card thông số mô hình
-st.sidebar.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("""<div class="spacer-20"></div>""", unsafe_allow_html=True)
 
 # Metrics độ lệch chuẩn - RMSE
 st.sidebar.markdown("""
-<div class="enhanced-metric-card" style="background: linear-gradient(145deg, rgba(139,92,246,0.3), rgba(76,29,149,0.5));
-                           border-color: rgba(167,139,250,0.3); padding: 10px; margin: 5px 0;">
-    <div class="metric-header" style="display:flex; align-items:center;">
-        <div class="metric-icon" style="background-color: rgba(167,139,250,0.2); margin-right:8px; padding:5px; border-radius:6px;">
+<div class="enhanced-metric-card purple-gradient">
+    <div class="metric-header">
+        <div class="metric-icon purple-icon-bg">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M9 22V12H15V22" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -830,22 +472,21 @@ st.sidebar.markdown("""
         </div>
         <span class="metric-title">RMSE</span>
     </div>
-    <div class="metric-value" style="color: #c4b5fd; font-size: 1.5rem; text-align:center; margin:5px 0;">{rmse:.4f}</div>
+    <div class="clean-metric-value purple-value">{rmse:.4f}</div>
 </div>
 """.format(rmse=rmse), unsafe_allow_html=True)
 
 # Thêm khoảng cách giữa các card metric và số lượng dữ liệu
-st.sidebar.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("""<div class="spacer-20"></div>""", unsafe_allow_html=True)
 
 # Các thống kê dữ liệu - hiển thị riêng từng dòng
 st.sidebar.markdown('<div class="model-stats-container"><div class="metric-header"><div class="metric-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8.00002C20.9996 7.6493 20.9071 7.30483 20.7315 7.00119C20.556 6.69754 20.3037 6.44539 20 6.27002L13 2.27002C12.696 2.09449 12.3511 2.00208 12 2.00208C11.6489 2.00208 11.304 2.09449 11 2.27002L4 6.27002C3.69626 6.44539 3.44398 6.69754 3.26846 7.00119C3.09294 7.30483 3.00036 7.6493 3 8.00002V16C3.00036 16.3508 3.09294 16.6952 3.26846 16.9989C3.44398 17.3025 3.69626 17.5547 4 17.73L11 21.73C11.304 21.9056 11.6489 21.998 12 21.998C12.3511 21.998 12.696 21.9056 13 21.73L20 17.73C20.3037 17.5547 20.556 17.3025 20.7315 16.9989C20.9071 16.6952 20.9996 16.3508 21 16Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="metric-title">Thống kê dữ liệu</span></div>', unsafe_allow_html=True)
 
 # Số lượng bất động sản
 st.sidebar.markdown("""
-<div class="enhanced-metric-card" style="background: linear-gradient(145deg, rgba(44,130,96,0.5), rgba(26,93,59,0.7));
-                           border-color: rgba(76,255,154,0.3); padding: 10px; margin: 5px 0;">
-    <div class="metric-header" style="display:flex; align-items:center;">
-        <div class="metric-icon" style="background-color: rgba(76,255,154,0.2); margin-right:8px; padding:5px; border-radius:6px;">
+<div class="enhanced-metric-card green-gradient">
+    <div class="metric-header">
+        <div class="metric-icon green-icon-bg">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 3V21H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M19 5L9 15L6 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -853,16 +494,16 @@ st.sidebar.markdown("""
         </div>
         <span class="metric-title">Số lượng bất động sản</span>
     </div>
-    <div class="metric-value" style="color: #4dff9e; font-size: 1.8rem; text-align:center; margin:5px 0;">{data_count:,}</div>
+    <div class="large-metric-value green-value">{data_count:,}</div>
 </div>
 """.format(data_count=len(data)), unsafe_allow_html=True)
 
 # Footer của sidebar
-st.sidebar.markdown("<hr style='margin: 1.5rem 0; opacity: 0.2'>", unsafe_allow_html=True)
-st.sidebar.markdown("<div style='padding: 0 1rem; color: rgba(255,255,255,0.7); font-size: 0.8rem;'>", unsafe_allow_html=True)
+st.sidebar.markdown("""<hr class="hr-divider">""", unsafe_allow_html=True)
+st.sidebar.markdown("""<div class="info-text">""", unsafe_allow_html=True)
 st.sidebar.markdown("""
 <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 0.5rem">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="info-icon">
         <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M12 16V12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M12 8H12.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -870,16 +511,16 @@ st.sidebar.markdown("""
     <span>Dự đoán giá BĐS Việt Nam</span>
 </div>
 
-<div style="display: flex; align-items: center;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 0.5rem">
+<div class="flex-container">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="info-icon">
         <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span>Nguồn: nhadat.cafeland.vn</span>
 </div>
 
-<div style="display: flex; align-items: center; margin-top: 0.5rem;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 0.5rem">
+<div class="flex-container-spaced">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="info-icon">
         <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -892,72 +533,7 @@ st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
 # MARK: - Chế độ Dự đoán giá
 if app_mode == "Dự đoán giá":
-   # CSS thêm cho tiêu đề trang
-    st.markdown("""
-    <style>
-    .modern-header {
-        background: linear-gradient(to right, rgba(30, 30, 30, 0.9), rgba(45, 45, 45, 0.8));
-        border-radius: 12px;
-        padding: 20px 25px;
-        margin-bottom: 25px;
-        border-left: 4px solid #4c9aff;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    }
-
-    .header-title {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .header-icon {
-        background-color: rgba(255, 255, 255, 0.08);
-        padding: 10px;
-        border-radius: 10px;
-        margin-right: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .header-icon svg {
-        width: 26px;
-        height: 26px;
-        stroke: #ffffff;
-        fill: none;
-        stroke-width: 1.5;
-    }
-
-    .header-text {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #ffffff;
-        line-height: 1.3;
-    }
-
-    .header-desc {
-        display: flex;
-        align-items: center;
-        color: #cccccc;
-        font-size: 1rem;
-        line-height: 1.5;
-        margin-left: 60px;
-        position: relative;
-    }
-
-    .header-desc:before {
-        content: '';
-        position: absolute;
-        width: 3px;
-        height: 100%;
-        background-color: rgba(76, 154, 255, 0.5);
-        left: -15px;
-        border-radius: 8px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    # Tiêu đề trang với giao diện hiện đại hơn
+    # Tiêu đề trang
     st.markdown("""
     <div class="modern-header">
         <div class="header-title">
@@ -973,65 +549,6 @@ if app_mode == "Dự đoán giá":
             Hãy nhập thông tin về bất động sản mà bạn quan tâm và chúng tôi sẽ dự đoán giá trị thị trường dựa trên mô hình học máy tiên tiến của chúng tôi.
         </div>
     </div>
-    """, unsafe_allow_html=True)
-
-    # Tạo style cho card
-    st.markdown("""
-    <style>
-    .input-card {
-        background-color: #1e1e1e;
-        border-radius: 10px;
-        border: 1px solid #333;
-        padding: 10px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-    }
-
-    .input-card:hover {
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        border-color: #444;
-    }
-
-    .card-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding-bottom: 0;
-    }
-
-    .card-header .icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(139, 92, 246, 0.1);
-        width: 26px;
-        height: 26px;
-        border-radius: 6px;
-        margin-right: 8px;
-    }
-
-    .card-header .icon svg {
-        width: 16px;
-        height: 16px;
-        stroke: #ffffff;
-        fill: none;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
-    .card-header .title {
-        color: #f0f0f0;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    .stSelectbox label, .stNumberInput label {
-        font-weight: 500;
-        color: #ccc !important;
-    }
-    </style>
     """, unsafe_allow_html=True)
 
     # Tạo layout với 2 cột
@@ -1150,44 +667,7 @@ if app_mode == "Dự đoán giá":
     # Sử dụng cách tiếp cận khác cho nút dự đoán
     st.markdown('<div style="padding: 10px 0 20px 0;"></div>', unsafe_allow_html=True)
 
-    # Cải thiện CSS cho mọi loại nút
-    st.markdown('''
-    <style>
-    /* Targeting all buttons with tertiary style */
-    .stButton > button[kind="tertiary"], div[data-testid="StyledFullScreenButton"] button[kind="tertiary"], div button[kind="tertiary"] {
-        background-color: #1a202c !important;
-        color: #f0f0f0 !important;
-        border: 1px solid #2d3748 !important;
-        padding: 12px 20px !important;
-        margin: 8px 0 !important;
-        border-radius: 6px !important;
-        font-weight: 500 !important;
-        font-size: 16px !important;
-        text-align: center !important;
-        transition: all 0.2s ease !important;
-        width: 100% !important;
-    }
-
-    /* Hover state for all tertiary buttons */
-    .stButton > button[kind="tertiary"]:hover, div button[kind="tertiary"]:hover {
-        background-color: #2d3748 !important;
-        border-color: #4a5568 !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    /* Active/focus state */
-    .stButton > button[kind="tertiary"]:active, div button[kind="tertiary"]:active,
-    .stButton > button[kind="tertiary"]:focus, div button[kind="tertiary"]:focus {
-        transform: translateY(0) !important;
-        background-color: #2d3748 !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-    </style>
-    ''', unsafe_allow_html=True)
-
-    # Cải thiện hơn nữa với container được thiết kế riêng
+    # Các nút được định dạng từ file CSS riêng
     st.markdown('<div class="prediction-button-wrapper"></div>', unsafe_allow_html=True)
 
     # Nút dự đoán
@@ -1266,107 +746,6 @@ if app_mode == "Dự đoán giá":
 
                     # Định dạng giá tổng
                     formatted_total_price = format_price(total_price)
-
-                    # CSS cho card hiển thị kết quả
-                    st.markdown('''
-                    <style>
-                    .result-container {
-                        background: linear-gradient(to right, rgba(25, 26, 36, 0.8), rgba(30, 32, 45, 0.9));
-                        border-radius: 12px;
-                        padding: 0;
-                        margin: 15px 0;
-                        border: 1px solid rgba(76, 154, 255, 0.2);
-                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-                        overflow: hidden;
-                    }
-
-                    .result-header {
-                        background: linear-gradient(to right, rgba(76, 154, 255, 0.15), rgba(76, 154, 255, 0.05));
-                        padding: 16px 25px;
-                        display: flex;
-                        align-items: center;
-                        border-bottom: 1px solid rgba(76, 154, 255, 0.1);
-                    }
-
-                    .result-header-icon {
-                        margin-right: 14px;
-                        color: #4c9aff;
-                        font-size: 24px;
-                    }
-
-                    .result-header-text {
-                        font-size: 18px;
-                        font-weight: 600;
-                        color: white;
-                    }
-
-                    .result-body {
-                        padding: 25px;
-                    }
-
-                    .price-grid {
-                        display: grid;
-                        grid-template-columns: 1fr 1fr;
-                        gap: 20px;
-                    }
-
-                    .price-card {
-                        background-color: rgba(30, 35, 50, 0.8);
-                        border-radius: 8px;
-                        padding: 18px;
-                        display: flex;
-                        flex-direction: column;
-                        border: 1px solid rgba(255, 255, 255, 0.06);
-                    }
-
-                    .price-label {
-                        font-size: 14px;
-                        color: #a0aec0;
-                        margin-bottom: 10px;
-                    }
-
-                    .price-value {
-                        font-size: 22px;
-                        font-weight: bold;
-                        color: white;
-                        letter-spacing: 0.5px;
-                    }
-
-                    .similar-container {
-                        margin-top: 30px;
-                    }
-
-                    .similar-header {
-                        background: linear-gradient(to right, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
-                        padding: 16px 25px;
-                        display: flex;
-                        align-items: center;
-                        border-radius: 8px 8px 0 0;
-                        border: 1px solid rgba(255, 255, 255, 0.05);
-                        border-bottom: none;
-                    }
-
-                    .similar-header-icon {
-                        margin-right: 14px;
-                        color: white;
-                        font-size: 20px;
-                    }
-
-                    .similar-header-text {
-                        font-size: 16px;
-                        font-weight: 600;
-                        color: white;
-                    }
-
-                    .similar-data-wrapper {
-                        border: 1px solid rgba(255, 255, 255, 0.05);
-                        border-top: none;
-                        border-radius: 0 0 8px 8px;
-                        overflow: hidden;
-                        padding: 5px;
-                    }
-                    </style>
-                    ''', unsafe_allow_html=True)
 
                     # Hiển thị kết quả trong container đẹp với giao diện hiện đại
                     st.markdown(f'''
@@ -1609,132 +988,6 @@ elif app_mode == "Phân tích dữ liệu":
 
 # MARK: - Chế độ Về dự án
 else:
-    # CSS cho trang "Về dự án"
-    st.markdown("""
-    <style>
-    .about-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 2rem;
-        background: linear-gradient(90deg, rgba(25, 26, 36, 0.8), rgba(30, 32, 45, 0.9));
-        padding: 1.5rem;
-        border-radius: 12px;
-        border-left: 5px solid #4c9aff;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .about-header img {
-        margin-right: 2rem;
-        border-radius: 8px;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .about-header-text {
-        color: white;
-    }
-
-    .about-header-text h1 {
-        margin: 0;
-        font-size: 2.5rem;
-        font-weight: 700;
-        background: linear-gradient(90deg, #4c9aff, #63dfdf);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .about-header-text p {
-        margin-top: 0.5rem;
-        font-size: 1.1rem;
-        opacity: 0.8;
-    }
-
-    .about-card {
-        background: linear-gradient(to right, rgba(25, 26, 36, 0.8), rgba(30, 32, 45, 0.9));
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        border: 1px solid rgba(76, 154, 255, 0.2);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .about-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        border-color: rgba(76, 154, 255, 0.4);
-    }
-
-    .about-card-title {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding-bottom: 0.8rem;
-    }
-
-    .about-card-title h2 {
-        margin: 0;
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: white;
-    }
-
-    .about-card-icon {
-        color: #4c9aff;
-        font-size: 1.8rem;
-        margin-right: 0.8rem;
-    }
-
-    .about-card-content {
-        color: rgba(255, 255, 255, 0.85);
-        font-size: 1rem;
-        line-height: 1.6;
-    }
-
-    .about-card-content ul {
-        padding-left: 1.5rem;
-        margin-top: 0.5rem;
-    }
-
-    .about-card-content li {
-        margin-bottom: 0.5rem;
-    }
-
-    .tech-tag {
-        display: inline-block;
-        background: rgba(76, 154, 255, 0.15);
-        color: #4c9aff;
-        padding: 0.3rem 0.8rem;
-        margin: 0.3rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        border: 1px solid rgba(76, 154, 255, 0.3);
-    }
-
-    .team-member {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.8rem;
-        padding: 0.5rem;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .team-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(45deg, #4c9aff, #63dfdf);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-right: 1rem;
-        font-weight: bold;
-        color: white;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
     # Khối header với logo và tiêu đề
     st.markdown("""
     <div class="about-header">

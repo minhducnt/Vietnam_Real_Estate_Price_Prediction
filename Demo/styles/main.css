@@ -1,0 +1,927 @@
+/* MARK: - Fonts & Global Styling */
+@import url('https://fonts.googleapis.com/css2?family=Literata:wght@200;300;400;500;600;700;800;900&display=swap&subset=latin,latin-ext,vietnamese');
+
+/* Global font styling */
+.stApp {
+    font-family: 'Literata', serif;
+}
+
+/* Text elements styling */
+h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, button, input, optgroup, select, textarea {
+    font-family: 'Literata', serif !important;
+}
+
+/* Main content area styling */
+.main {
+    background-color: #f8f9fa;
+    margin-left: 250px;
+    padding: 1rem 2rem;
+}
+
+/* MARK: - Sidebar Styling */
+[data-testid="stSidebar"] {
+    background-color: #1a202c;
+    padding-top: 0;
+    min-width: 280px !important;
+    max-width: 280px !important;
+}
+
+[data-testid="stSidebar"] .css-6qob1r {
+    background-color: #1a202c;
+}
+
+/* Sidebar header styling */
+.sidebar-header {
+    background: linear-gradient(to right, #2c5282, #1a365d);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    margin-bottom: 1.6rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.8rem;
+}
+
+.sidebar-header img {
+    max-width: 40px;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-header h2 {
+    color: white;
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.sidebar-header p {
+    color: rgba(255,255,255,0.7);
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+/* MARK: - Sidebar Navigation */
+/* Sidebar navigation styling */
+.nav-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: white !important;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.nav-link.active {
+    background-color: #4c9aff;
+    color: white !important;
+    font-weight: 600;
+}
+
+/* Sidebar text color */
+[data-testid="stSidebar"] .css-eczf16,
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] h4,
+[data-testid="stSidebar"] h5,
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] div,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .stSelectbox label {
+    color: white !important;
+}
+
+/* MARK: - Sidebar Buttons & Form Controls */
+/* Custom sidebar buttons */
+[data-testid="stSidebar"] button {
+    background-color: #2d3748 !important;
+    color: white !important;
+    border: none !important;
+}
+
+[data-testid="stSidebar"] button:hover {
+    background-color: #4A5568 !important;
+}
+
+/* Custom selectbox in sidebar */
+[data-testid="stSidebar"] .stSelectbox {
+    margin-bottom: 0.5rem;
+}
+
+[data-testid="stSidebar"] .stSelectbox > div > div {
+    background-color: #2d3748 !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* MARK: - Streamlit Controls */
+/* Tabs styling */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 10px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 50px;
+    white-space: pre-wrap;
+    background-color: #f1f3f4;
+    border-radius: 5px 5px 0px 0px;
+    gap: 1px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: #4c9aff;
+    color: white;
+}
+
+/* Button styling */
+.stButton>button {
+    background-color: #4c9aff;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 500;
+}
+
+.stButton>button:hover {
+    background-color: #3d7ecc;
+    color: white;
+}
+
+/* MARK: - Metrics Styling */
+/* Basic metrics styling */
+[data-testid="stMetricValue"] {
+    color: #4c9aff !important;
+    font-weight: bold !important;
+}
+
+div[data-testid="stMetricValue"] {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+div[data-testid="stMetricLabel"] {
+    font-size: 1rem;
+}
+
+/* MARK: - Sidebar Components */
+/* Sidebar metrics styling */
+.sidebar-metric {
+    background-color: rgba(255,255,255,0.05);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-section {
+    padding: 0.5rem 1rem 1rem 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-section-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-section-title svg {
+    margin-right: 0.5rem;
+}
+
+/* MARK: - Layout & Positioning */
+/* Left-aligned title styling */
+.left-aligned-title {
+    text-align: left !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
+    line-height: 2.4rem !important;
+}
+
+.left-aligned-title span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: normal !important;
+}
+
+.left-aligned-title span:first-child {
+    margin-right: 12px !important;
+}
+
+/* Sidebar padding adjustment */
+[data-testid="stSidebarUserContent"] > div:first-child {
+    padding-top: 0rem;
+}
+
+[data-testid="stVerticalBlock"] {
+    gap: 0.5rem;
+}
+
+/* MARK: - Navigation Buttons */
+.nav-button {
+    width: 100% !important;
+    text-align: left !important;
+    padding: 0.6rem 0.5rem !important;
+    margin: 0.25rem 0 !important;
+    border-radius: 0.5rem !important;
+}
+
+button[kind="secondary"], button[kind="primary"] {
+    width: 100% !important;
+    text-align: left !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.6rem 0.5rem !important;
+    margin: 0.25rem 0 !important;
+    border-radius: 0.5rem !important;
+}
+
+button[kind="secondary"] p, button[kind="primary"] p {
+    width: 100% !important;
+    text-align: left !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* MARK: - Sidebar Specific Buttons */
+.sidebar-nav-button {
+    width: 100%;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    padding: 0.6rem 0.5rem !important;
+    margin: 0.25rem 0 !important;
+    border-radius: 0.5rem !important;
+    color: white !important;
+    background-color: rgba(44, 52, 75, 0.5) !important;
+    border: none !important;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem !important;
+    line-height: 1.2;
+}
+
+.sidebar-nav-button:hover {
+    background-color: rgba(76, 154, 255, 0.7) !important;
+}
+
+.sidebar-nav-button-active {
+    background-color: #4c9aff !important;
+    color: white !important;
+    font-weight: 500 !important;
+}
+
+/* Additional button styling */
+button[kind="primary"], button[kind="secondary"] {
+    padding-left: 16px !important;
+    padding-right: 6px !important;
+}
+
+button[kind="primary"] p:first-child, button[kind="secondary"] p:first-child {
+    display: inline-block;
+    margin-right: 8px !important;
+    font-size: 1.2rem !important;
+}
+
+button[kind="primary"] p:last-child, button[kind="secondary"] p:last-child {
+    font-size: 0.95rem !important;
+    font-weight: 500;
+}
+
+/* MARK: - Block-level Elements */
+/* Specific styling for buttons in vertical blocks */
+div[data-testid="stVerticalBlock"] button {
+    width: 100% !important;
+    text-align: left !important;
+    padding: 0.6rem 0.5rem !important;
+    margin: 0.25rem 0 !important;
+    border-radius: 0.5rem !important;
+    font-size: 0.95rem !important;
+}
+
+/* Target text container in button */
+div[data-testid="stVerticalBlock"] button > div:first-child {
+    display: flex !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+}
+
+/* Target text element in button */
+div[data-testid="stVerticalBlock"] button > div:first-child > p {
+    text-align: left !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* MARK: - Enhanced Metrics Cards */
+/* Style cho card metrics mới */
+.enhanced-metric-card {
+    background: linear-gradient(145deg, rgba(44,82,130,0.5), rgba(26,54,93,0.7));
+    border-radius: 10px;
+    padding: 10px !important;
+    margin: 5px 0 !important;
+    border: 1px solid rgba(76,154,255,0.3);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.enhanced-metric-card:hover {
+    border: 1px solid rgba(76,154,255,0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+/* MARK: - Metric Components */
+.metric-header {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 0.5rem !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+    padding-bottom: 0.4rem !important;
+}
+
+.metric-icon {
+    margin-right: 8px !important;
+    padding: 5px !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.metric-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+}
+
+.metric-value {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #4c9aff !important;
+    text-align: center !important;
+    margin: 5px 0 !important;
+}
+
+.metric-description {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    margin-top: 0.2rem;
+}
+
+.model-stats-container {
+    margin: 0.3rem 0;
+    padding: 0.3rem;
+}
+
+/* Enhanced metrics card styles */
+.enhanced-metric-card {
+    padding: 10px !important;
+    margin: 5px 0 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* MARK: - Color Variations */
+/* Color variations for metrics cards */
+.blue-gradient {
+    background: linear-gradient(145deg, rgba(51,97,255,0.3), rgba(29,55,147,0.5)) !important;
+    border-color: rgba(100,149,237,0.3) !important;
+    border: 1px solid rgba(100,149,237,0.3) !important;
+}
+
+.purple-gradient {
+    background: linear-gradient(145deg, rgba(139,92,246,0.3), rgba(76,29,149,0.5)) !important;
+    border-color: rgba(167,139,250,0.3) !important;
+    border: 1px solid rgba(167,139,250,0.3) !important;
+}
+
+.green-gradient {
+    background: linear-gradient(145deg, rgba(44,130,96,0.5), rgba(26,93,59,0.7)) !important;
+    border-color: rgba(76,255,154,0.3) !important;
+    border: 1px solid rgba(76,255,154,0.3) !important;
+}
+
+/* MARK: - Icon Background Colors */
+/* Specific icon background colors */
+.blue-icon-bg {
+    background-color: rgba(100,149,237,0.2) !important;
+}
+
+.purple-icon-bg {
+    background-color: rgba(167,139,250,0.2) !important;
+}
+
+.green-icon-bg {
+    background-color: rgba(76,255,154,0.2) !important;
+}
+
+/* MARK: - Value Colors */
+/* Specific value colors */
+.blue-value {
+    color: #84a9ff !important;
+}
+
+.purple-value {
+    color: #c4b5fd !important;
+}
+
+.green-value {
+    color: #4dff9e !important;
+}
+
+/* MARK: - Metric Value Styling */
+/* Consistent metric value styling */
+.clean-metric-value {
+    font-size: 1.5rem !important;
+    text-align: center !important;
+    margin: 5px 0 !important;
+}
+
+.large-metric-value {
+    font-size: 1.8rem !important;
+    text-align: center !important;
+    margin: 5px 0 !important;
+}
+
+/* Sidebar information styling */
+.info-icon {
+    margin-right: 0.5rem;
+}
+
+/* MARK: - Input Cards */
+/* Input Card Styling */
+.input-card {
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    border: 1px solid #333;
+    padding: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.input-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    border-color: #444;
+}
+
+/* MARK: - Card Header Components */
+.card-header {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 0;
+}
+
+.card-header .icon {
+    align-items: center;
+    background-color: rgba(139, 92, 246, 0.1);
+    border-radius: 6px;
+    display: flex;
+    height: 26px;
+    justify-content: center;
+    margin-right: 8px;
+    width: 26px;
+}
+
+.card-header .icon svg {
+    fill: none;
+    height: 16px;
+    stroke: #ffffff;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    width: 16px;
+}
+
+.card-header .title {
+    color: #f0f0f0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* MARK: - Form Controls */
+.stSelectbox label, .stNumberInput label {
+    font-weight: 500;
+    color: #ccc !important;
+}
+
+/* Sửa hiển thị của number input */
+.stNumberInput > div {
+    display: flex;
+    align-items: stretch !important;
+}
+
+.stNumberInput > div > div:first-child {
+    flex-grow: 1;
+}
+
+/* Nút giảm (trừ) */
+.stNumberInput button:first-of-type {
+    height: 100% !important;
+    align-self: stretch !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 10px !important;
+    min-height: 38px !important;
+}
+
+/* Nút tăng (cộng) */
+.stNumberInput button:last-of-type {
+    height: 100% !important;
+    align-self: stretch !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 10px !important;
+    min-height: 38px !important;
+}
+
+/* Ô input */
+.stNumberInput input {
+    border-radius: 0 !important;
+    text-align: center !important;
+    padding: 0 10px !important;
+    margin: 0 !important;
+    height: 38px !important;
+    min-height: 38px !important;
+}
+
+/* MARK: - Flex Containers */
+.flex-container {
+    display: flex;
+    align-items: center;
+}
+
+.flex-container-spaced {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+/* MARK: - Utility Classes */
+.spacer-24 {
+    height: 24px;
+}
+
+.spacer-20 {
+    height: 20px;
+}
+
+.hr-divider {
+    margin: 1.5rem 0;
+    opacity: 0.2;
+}
+
+.info-text {
+    padding: 0 1rem;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.8rem;
+}
+
+/* MARK: - Modern Header */
+.modern-header {
+    background: linear-gradient(to right, rgba(30, 30, 30, 0.9), rgba(45, 45, 45, 0.8));
+    border-radius: 12px;
+    padding: 20px 25px;
+    margin-bottom: 25px;
+    border-left: 4px solid #4c9aff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.header-icon {
+    background-color: rgba(255, 255, 255, 0.08);
+    padding: 10px;
+    border-radius: 10px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-icon svg {
+    width: 26px;
+    height: 26px;
+    stroke: #ffffff;
+    fill: none;
+    stroke-width: 1.5;
+}
+
+.header-text {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+}
+
+.header-desc {
+    display: flex;
+    align-items: center;
+    color: #cccccc;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-left: 60px;
+    position: relative;
+}
+
+.header-desc:before {
+    content: '';
+    position: absolute;
+    width: 3px;
+    height: 100%;
+    background-color: rgba(76, 154, 255, 0.5);
+    left: -15px;
+    border-radius: 8px;
+}
+
+/* MARK: - Tertiary Buttons */
+.stButton > button[kind="tertiary"],
+div[data-testid="StyledFullScreenButton"] button[kind="tertiary"],
+div button[kind="tertiary"] {
+    background-color: #1a202c !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #2d3748 !important;
+    padding: 12px 20px !important;
+    margin: 8px 0 !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    font-size: 16px !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+    width: 100% !important;
+}
+
+.stButton > button[kind="tertiary"]:hover,
+div button[kind="tertiary"]:hover {
+    background-color: #2d3748 !important;
+    border-color: #4a5568 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.stButton > button[kind="tertiary"]:active,
+div button[kind="tertiary"]:active,
+.stButton > button[kind="tertiary"]:focus,
+div button[kind="tertiary"]:focus {
+    transform: translateY(0) !important;
+    background-color: #2d3748 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* MARK: - Result Container */
+.result-container {
+    background: linear-gradient(to right, rgba(25, 26, 36, 0.8), rgba(30, 32, 45, 0.9));
+    border-radius: 12px;
+    padding: 0;
+    margin: 15px 0;
+    border: 1px solid rgba(76, 154, 255, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.result-header {
+    background: linear-gradient(to right, rgba(76, 154, 255, 0.15), rgba(76, 154, 255, 0.05));
+    padding: 16px 25px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(76, 154, 255, 0.1);
+}
+
+.result-header-icon {
+    margin-right: 14px;
+    color: #4c9aff;
+    font-size: 24px;
+}
+
+.result-header-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+}
+
+.result-body {
+    padding: 25px;
+}
+
+.price-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.price-card {
+    background-color: rgba(30, 35, 50, 0.8);
+    border-radius: 8px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.price-label {
+    font-size: 14px;
+    color: #a0aec0;
+    margin-bottom: 10px;
+}
+
+.price-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+    letter-spacing: 0.5px;
+}
+
+/* MARK: - Similar Properties */
+.similar-container {
+    margin-top: 30px;
+}
+
+.similar-header {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+    padding: 16px 25px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: none;
+}
+
+.similar-header-icon {
+    margin-right: 14px;
+    color: white;
+    font-size: 20px;
+}
+
+.similar-header-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+}
+
+.similar-data-wrapper {
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    padding: 5px;
+}
+
+.prediction-button-wrapper {
+    margin: 10px 0;
+}
+
+/* MARK: - About Project Page */
+.about-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: linear-gradient(90deg, rgba(25, 26, 36, 0.8), rgba(30, 32, 45, 0.9));
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 5px solid #4c9aff;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.about-header img {
+    margin-right: 2rem;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.about-header-text {
+    color: white;
+}
+
+.about-header-text h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #4c9aff, #63dfdf);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.about-header-text p {
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+.about-card {
+    background: linear-gradient(to right, rgba(25, 26, 36, 0.8), rgba(30, 32, 45, 0.9));
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(76, 154, 255, 0.2);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    border-color: rgba(76, 154, 255, 0.4);
+}
+
+.about-card-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.8rem;
+}
+
+.about-card-title h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: white;
+}
+
+.about-card-icon {
+    color: #4c9aff;
+    font-size: 1.8rem;
+    margin-right: 0.8rem;
+}
+
+.about-card-content {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.about-card-content ul {
+    padding-left: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.about-card-content li {
+    margin-bottom: 0.5rem;
+}
+
+.tech-tag {
+    display: inline-block;
+    background: rgba(76, 154, 255, 0.15);
+    color: #4c9aff;
+    padding: 0.3rem 0.8rem;
+    margin: 0.3rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(76, 154, 255, 0.3);
+}
+
+.team-member {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.team-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #4c9aff, #63dfdf);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 1rem;
+    font-weight: bold;
+    color: white;
+}
